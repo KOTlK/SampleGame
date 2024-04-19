@@ -171,7 +171,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
@@ -264,7 +264,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
@@ -326,7 +326,7 @@ PrefabInstance:
     - target: {fileID: 960357628785829399, guid: 929429f3374f0f14094276c4452b7cc4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 960357628785829399, guid: 929429f3374f0f14094276c4452b7cc4,
         type: 3}
@@ -486,7 +486,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!114 &410087042
 MonoBehaviour:
@@ -558,7 +558,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &849205371
 GameObject:
@@ -663,7 +663,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1350982210
 GameObject:
@@ -676,7 +676,7 @@ GameObject:
   - component: {fileID: 1350982214}
   - component: {fileID: 1350982212}
   - component: {fileID: 1350982211}
-  - component: {fileID: 1350982213}
+  - component: {fileID: 1350982215}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -849,31 +849,6 @@ MonoBehaviour:
   MaxEntitiesCount: 0
   FreeEntitiesCount: 0
   EntitiesToRemoveCount: 0
---- !u!114 &1350982213
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1350982210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65f60944fb8d4b34499a898f4b6d2d17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Player: {fileID: 1409290248}
-  PlayerInput: {fileID: 1350982211}
-  Em: {fileID: 1350982212}
-  TaskRunner: {fileID: 268348975}
-  SpawnerTask:
-    Index: 0
-    Group: 0
-    MaxBounds: {x: 9, y: 0, z: 9}
-    MinBounds: {x: -9, y: 0, z: -9}
-    WorldCenter: {x: 0, y: 0, z: 0}
-    Prefab: {fileID: 8134109855589306714, guid: dfdc2a3d7ba73234ab4d34d087a82e3a,
-      type: 3}
-    SpawnRate: 30
 --- !u!4 &1350982214
 Transform:
   m_ObjectHideFlags: 0
@@ -889,6 +864,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1350982215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350982210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8089ec6a2c8f29499bc42ae886a777b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Player: {fileID: 1409290248}
+  PlayerInput: {fileID: 1350982211}
+  EntityManager: {fileID: 1350982212}
+  TaskRunner: {fileID: 268348975}
+  SpawnerTask:
+    Index: 0
+    Group: 0
+    MaxBounds: {x: 9, y: 0, z: 9}
+    MinBounds: {x: -9, y: 0, z: -9}
+    WorldCenter: {x: 0, y: 0, z: 0}
+    Prefab: {fileID: 8134109855589306714, guid: dfdc2a3d7ba73234ab4d34d087a82e3a,
+      type: 3}
+    SpawnRate: 30
 --- !u!114 &1409290248 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
