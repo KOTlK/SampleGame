@@ -1,60 +1,60 @@
 using System;
+using System.Runtime.CompilerServices;
+using static UnityEngine.Assertions.Assert;
 
 public class TaskGroup{
-    private Task[] _allTasks;
-    private int[]  _removedTasks;
-    private int    _tasksCount;
-    private int    _removedTasksCount;
+    public Task[] AllTasks;
+    public int    TasksCount;
     
     public TaskGroup(int startCount){
-        _allTasks          = new Task[startCount];
-        _removedTasks      = new int[startCount];
-        _tasksCount        = 0;
-        _removedTasksCount = 0;
+        AllTasks          = new Task[startCount];
+        TasksCount        = 0;
     }
     
     public void NewTask(Task task){
-        var index = _tasksCount++;
+        var index = TasksCount++;
         
-        if(_tasksCount == _allTasks.Length){
-            Array.Resize(ref _allTasks, _tasksCount << 1);
+        if(TasksCount == AllTasks.Length){
+            Array.Resize(ref AllTasks, TasksCount << 1);
         }
         
-        _allTasks[index] = task;
-        task.Index               = index;
-        task.Over += EndTask;
+        AllTasks[index] = task;
+        task.Index       = index;
+        task.IsOver      = false;
         task.OnCreate();
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EndTask(int index){
-        var task = _allTasks[index];
-        
-        task.Over -= EndTask;
-
-        //remove and swapback
-        _allTasks[index] = _allTasks[--_tasksCount];
-        _allTasks[index].Index = index;
-        _allTasks[_tasksCount] = null;
-        
-        if(_tasksCount > 0){ 
-            if(_removedTasksCount == _removedTasks.Length){
-                Array.Resize(ref _removedTasks, _removedTasksCount << 1);
-            }
-            
-            _removedTasks[_removedTasksCount++] = index;
-        }
-        
-        task.OnOver();
+        IsTrue(AllTasks[index] != null);
+        AllTasks[index].Stop();
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RunTasks(){
-        for(var i = 0; i < _tasksCount; ++i){
-            _allTasks[i].Run();
+        for(var i = 0; i < TasksCount; ++i){
+            IsTrue(AllTasks[i] != null);
+
+            if(AllTasks[i].IsOver){
+                RemoveAndSwapBack(i);
+                i--;
+            }else{
+                AllTasks[i].Run();
+                if(AllTasks[i].IsOver){
+                    RemoveAndSwapBack(i);
+                    i--;
+                }
+            }
         }
-        
-        //iterate through all tasks that were swapped back and execute it
-        while(_removedTasksCount > 0){
-            _allTasks[--_removedTasksCount].Run();
-        }
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void RemoveAndSwapBack(int i){
+        IsTrue(AllTasks[TasksCount - 1] != null);
+        var task = AllTasks[i];
+        AllTasks[i] = AllTasks[--TasksCount];
+        AllTasks[i].Index = i;
+        AllTasks[TasksCount] = null;
+        task.OnOver();
     }
 }
