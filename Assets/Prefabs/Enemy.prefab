@@ -131,7 +131,9 @@ MonoBehaviour:
   Input: {fileID: 8482662292893231139}
   CharacterController: {fileID: 2077303974081807471}
   Target: 0
-  Damage: 5
+  Damage:
+    amount: 10
+    sender: 0
   AttackRadius: 1.5
   TargetsLayer:
     serializedVersion: 2

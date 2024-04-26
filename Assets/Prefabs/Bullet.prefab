@@ -105,7 +105,9 @@ MonoBehaviour:
   Speed: 10
   Size: 0.7
   TimeToLive: 1
-  Damage: 10
+  Damage:
+    amount: 10
+    sender: 0
   Mask:
     serializedVersion: 2
     m_Bits: 64

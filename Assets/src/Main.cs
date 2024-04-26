@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public enum GameState{
     MainMenu,
@@ -8,25 +9,39 @@ public enum GameState{
 }
 
 public class Main : MonoBehaviour{
+    public TMP_Text      KilledEnemiesText;
+    public TMP_Text      KilledEnemiesByPlayerText;
     public Player        Player;
     public PlayerInput   PlayerInput;
     public EntityManager EntityManager;
     public TaskRunner    TaskRunner;
     public EnemySpawner  SpawnerTask;
+    public Events        Events;
     
     private GameState _state;
     
     private void Awake(){
         TaskRunner = new TaskRunner();
+        Events     = new Events();
+        
         Singleton<EntityManager>.Create(EntityManager);
         Singleton<TaskRunner>.Create(TaskRunner);
+        Singleton<Events>.Create(Events);
         Singleton<Player>.Create(Player);
+        
+        var edeh = new EnemyDiedEventHandler();
+        edeh.KilledEnemiesText         = KilledEnemiesText;
+        edeh.KilledEnemiesByPlayerText = KilledEnemiesByPlayerText;
     }
     
     private void Start(){
         EntityManager.BakeEntities();
         ToMainMenu();
         TaskRunner.StartTask(TaskGroupType.Gameplay, SpawnerTask);
+    }
+    
+    private void OnDestroy(){
+        Events.Dispose();
     }
     
     private void Update(){
@@ -47,6 +62,7 @@ public class Main : MonoBehaviour{
                     break;
                 }
                 PlayerInput.Execute();
+                Events.HandleEvents<EnemyDiedEvent>();
                 EntityManager.Execute();
                 TaskRunner.RunTaskGroup(TaskGroupType.Gameplay);
             }

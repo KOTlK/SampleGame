@@ -4,7 +4,7 @@ public class Projectile : Entity{
     public float     Speed;
     public float     Size;
     public float     TimeToLive;
-    public int       Damage;
+    public Damage    Damage;
     public LayerMask Mask;
     
     private Vector3 _direction;
@@ -15,6 +15,7 @@ public class Projectile : Entity{
     public void Shoot(Vector3 direction, Entity sender){
         _direction = direction;
         _sender    = sender;
+        Damage.sender = sender.Id;
     }
     
     public override void Execute(){

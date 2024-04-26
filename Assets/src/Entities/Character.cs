@@ -1,5 +1,11 @@
 using UnityEngine;
 
+[System.Serializable]
+public struct Damage{
+    public int amount;
+    public int sender;
+}
+
 public class Character : Entity{
     public float               Speed;
     public int                 Health;
@@ -21,8 +27,8 @@ public class Character : Entity{
         transform.rotation = rotation;
     }
     
-    public void ApplyDamage(int amount){
-        Health -= amount;
+    public virtual void ApplyDamage(Damage damage){
+        Health -= damage.amount;
         if(Health <= 0){
             Em.DestroyEntity(Id);
         }
