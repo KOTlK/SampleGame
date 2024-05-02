@@ -1,7 +1,8 @@
 using UnityEngine;
+using System.Collections;
 
 [System.Serializable]
-public class EnemySpawner : Task{
+public class EnemySpawner : IEnumerator {
     public Vector3 MaxBounds;
     public Vector3 MinBounds;
     public Vector3 WorldCenter = Vector3.zero;
@@ -9,19 +10,22 @@ public class EnemySpawner : Task{
     public float   SpawnRate; // spawns per minute
     
     private float _delay;
-    
-    public override void OnCreate(){
-        _delay = 60f / SpawnRate;
-    }
 
-    public override void Run(){
+    public object Current => null;
+    
+    public void Reset() { }
+    
+    public bool MoveNext() {
         var em = Singleton<EntityManager>.Instance;
-        _delay += Time.deltaTime;
         
-        if(_delay >= 60f / SpawnRate){
+        _delay += Time.deltaTime;
+            
+        if(_delay >= 60f / SpawnRate) {
             em.CreateEntity(Prefab, GetRandomPosition());
             _delay = 0f;
         }
+        
+        return true;
     }
     
     private Vector3 GetRandomPosition(){
