@@ -1,14 +1,15 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
-public enum GameState{
+public enum GameState {
     MainMenu,
     Gameplay,
     Pause,
     GameEnd
 }
 
-public class Main : MonoBehaviour{
+public class Main : MonoBehaviour {
     public TMP_Text      KilledEnemiesText;
     public TMP_Text      KilledEnemiesByPlayerText;
     public Player        Player;
@@ -20,7 +21,7 @@ public class Main : MonoBehaviour{
     
     private GameState _state;
     
-    private void Awake(){
+    private void Awake() {
         TaskRunner = new TaskRunner();
         Events     = new Events();
         
@@ -34,22 +35,35 @@ public class Main : MonoBehaviour{
         edeh.KilledEnemiesByPlayerText = KilledEnemiesByPlayerText;
     }
     
-    private void Start(){
+    private void Start() {
         EntityManager.BakeEntities();
         ToMainMenu();
         TaskRunner.StartTask(TaskGroupType.Gameplay, SpawnerTask);
+        TaskRunner.StartTask(TaskGroupType.ExecuteAlways, TestingTask());
     }
     
-    private void OnDestroy(){
+    private IEnumerator TestingTask() {
+        Debug.Log("Enter");
+        
+        for(var i = 0; i < 10; ++i) {
+            Debug.Log($"Iteration: {i}, Time: {Time.frameCount}");
+            yield return null;
+        }
+        
+        Debug.Log("Exit");
+    }
+    
+    private void OnDestroy() {
         Events.Dispose();
     }
     
-    private void Update(){
+    private void Update() {
+        Clock.Update();
         TaskRunner.RunTaskGroup(TaskGroupType.ExecuteAlways);
-        switch(_state){
+        switch(_state) {
             case GameState.MainMenu:
             {
-                if(Input.GetKeyDown(KeyCode.Space)){
+                if(Input.GetKeyDown(KeyCode.Space)) {
                     ToGameplay();
                 }
             }
@@ -57,7 +71,7 @@ public class Main : MonoBehaviour{
             
             case GameState.Gameplay:
             {
-                if(Input.GetKeyDown(KeyCode.Escape)){
+                if(Input.GetKeyDown(KeyCode.Escape)) {
                     Pause();
                     break;
                 }
@@ -70,7 +84,7 @@ public class Main : MonoBehaviour{
             
             case GameState.Pause:
             {
-                if(Input.GetKeyDown(KeyCode.Escape)){
+                if(Input.GetKeyDown(KeyCode.Escape)) {
                     ToGameplay();
                     break;
                 }
@@ -86,22 +100,22 @@ public class Main : MonoBehaviour{
         
     }
     
-    private void ToMainMenu(){
+    private void ToMainMenu() {
         _state = GameState.MainMenu;
         
     }
     
-    private void ToGameplay(){
+    private void ToGameplay() {
         _state = GameState.Gameplay;
         
     }
     
-    private void Pause(){
+    private void Pause() {
         _state = GameState.Pause;
         
     }
     
-    private void EndGame(){
+    private void EndGame() {
         _state = GameState.GameEnd;
         
     }

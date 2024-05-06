@@ -287,7 +287,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: TestRunnerWindow
+  m_Name: InspectorWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -296,15 +296,15 @@ MonoBehaviour:
     y: 0
     width: 509
     height: 947
-  m_MinSize: {x: 101, y: 121}
+  m_MinSize: {x: 276, y: 71}
   m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 15}
+  m_ActualView: {fileID: 21}
   m_Panes:
   - {fileID: 21}
   - {fileID: 15}
   - {fileID: 13}
-  m_Selected: 1
-  m_LastSelected: 0
+  m_Selected: 0
+  m_LastSelected: 1
 --- !u!114 &13
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -464,7 +464,7 @@ MonoBehaviour:
     m_SaveData: []
     m_OverlaysVisible: 1
   m_Spl:
-    ID: 267
+    ID: 142
     splitterInitialOffset: 0
     currentActiveSplitter: -1
     realSizes:
@@ -542,12 +542,12 @@ MonoBehaviour:
       categories: []
       parentId: 
       parentUniqueId: 
-    - id: 1004
+    - id: 1008
       uniqueId: '[Tests][D:/Unity/Projects/SampleGame/Library/ScriptAssemblies/Tests.dll][suite]'
       name: Tests.dll
       fullName: D:/Unity/Projects/SampleGame/Library/ScriptAssemblies/Tests.dll
-      resultStatus: 1
-      duration: 0.0798263
+      resultStatus: 0
+      duration: 0
       messages: 
       output: 
       stacktrace: 
@@ -562,8 +562,8 @@ MonoBehaviour:
       uniqueId: Tests.dll/[Tests][EventsTests][suite]
       name: EventsTests
       fullName: EventsTests
-      resultStatus: 1
-      duration: 0.0458743
+      resultStatus: 0
+      duration: 0
       messages: 
       output: 
       stacktrace: 
@@ -578,8 +578,8 @@ MonoBehaviour:
       uniqueId: Tests.dll/EventsTests/[Tests][EventsTests.CreateExecuteEventAndClear]
       name: CreateExecuteEventAndClear
       fullName: EventsTests.CreateExecuteEventAndClear
-      resultStatus: 1
-      duration: 0.0159529
+      resultStatus: 0
+      duration: 0
       messages: 
       output: 
       stacktrace: 
@@ -595,20 +595,10 @@ MonoBehaviour:
       uniqueId: Tests.dll/EventsTests/[Tests][EventsTests.PerformaceTest]
       name: PerformaceTest
       fullName: EventsTests.PerformaceTest
-      resultStatus: 1
-      duration: 0.0094383
+      resultStatus: 0
+      duration: 0
       messages: 
-      output: 'Initialization: 667 ticks
-
-        Raising 10000 identical Events:
-        30516 ticks
-
-        Handling 10000 identical Events: 1851 ticks
-
-        10000,
-        100000
-
-'
+      output: 
       stacktrace: 
       notRunnable: 0
       ignoredOrSkipped: 0
@@ -622,8 +612,8 @@ MonoBehaviour:
       uniqueId: Tests.dll/EventsTests/[Tests][EventsTests.ResizeAndSaveData]
       name: ResizeAndSaveData
       fullName: EventsTests.ResizeAndSaveData
-      resultStatus: 1
-      duration: 0.0004871
+      resultStatus: 0
+      duration: 0
       messages: 
       output: 
       stacktrace: 
@@ -635,12 +625,12 @@ MonoBehaviour:
       - Uncategorized
       parentId: 1001
       parentUniqueId: Tests.dll/[Tests][EventsTests][suite]
-    - id: 1001
+    - id: 1005
       uniqueId: Tests.dll/[Tests][TasksTest][suite]
       name: TasksTest
       fullName: TasksTest
-      resultStatus: 1
-      duration: 0.0226702
+      resultStatus: 0
+      duration: 0
       messages: 
       output: 
       stacktrace: 
@@ -649,14 +639,14 @@ MonoBehaviour:
       description: 
       isSuite: 1
       categories: []
-      parentId: 1004
+      parentId: 1008
       parentUniqueId: '[Tests][D:/Unity/Projects/SampleGame/Library/ScriptAssemblies/Tests.dll][suite]'
-    - id: 1002
+    - id: 1006
       uniqueId: Tests.dll/TasksTest/[Tests][TasksTest.StartAndOverTasksInCorrectOrder]
       name: StartAndOverTasksInCorrectOrder
       fullName: TasksTest.StartAndOverTasksInCorrectOrder
-      resultStatus: 1
-      duration: 0.0066506
+      resultStatus: 0
+      duration: 0
       messages: 
       output: 
       stacktrace: 
@@ -666,14 +656,14 @@ MonoBehaviour:
       isSuite: 0
       categories:
       - Uncategorized
-      parentId: 1001
+      parentId: 1005
       parentUniqueId: Tests.dll/[Tests][TasksTest][suite]
-    - id: 1003
+    - id: 1007
       uniqueId: Tests.dll/TasksTest/[Tests][TasksTest.WrappedTasksWillBeStopped]
       name: WrappedTasksWillBeStopped
       fullName: TasksTest.WrappedTasksWillBeStopped
-      resultStatus: 1
-      duration: 0.0005973
+      resultStatus: 0
+      duration: 0
       messages: 
       output: 
       stacktrace: 
@@ -683,9 +673,9 @@ MonoBehaviour:
       isSuite: 0
       categories:
       - Uncategorized
-      parentId: 1001
+      parentId: 1005
       parentUniqueId: Tests.dll/[Tests][TasksTest][suite]
-    m_ResultText: CreateExecuteEventAndClear (0.016s)
+    m_ResultText: 
     m_ResultStacktrace: 
     m_TestListState:
       scrollPos: {x: 0, y: 0}
@@ -757,7 +747,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 3c20fbffe02cfbff1afbffff
+      m_ExpandedIDs: defaffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1444,7 +1434,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 625b0000
     m_LastClickedID: 23394
-    m_ExpandedIDs: 00000000545b000000ca9a3b
+    m_ExpandedIDs: 000000005e5b0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1472,7 +1462,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000545b0000
+    m_ExpandedIDs: 000000005e5b0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
