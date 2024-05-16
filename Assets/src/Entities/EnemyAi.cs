@@ -10,7 +10,7 @@ public class EnemyAi : CharacterInput {
     }
     
     public override void Execute() {
-        var target = (Character)Enemy.Em.GetEntity(Enemy.Target, out bool alive);
+        var (alive, target) = Enemy.Em.GetEntity<Character>(Enemy.Target);
         
         if(target != null && target.IsDead == false && alive) {
             var direction = target.transform.position - Enemy.transform.position;
