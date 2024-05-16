@@ -97,9 +97,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: 0
-  Alive: 0
   Flags: 4
-  Type: 0
+  Type: 3
   Em: {fileID: 0}
   AutoBake: 0
   Speed: 10

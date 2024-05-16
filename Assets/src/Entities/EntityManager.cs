@@ -97,7 +97,7 @@ public class EntityManager : MonoBehaviour {
         obj.OnCreate();
         
         return obj;
-    }
+    }    
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DestroyEntity(int id) {

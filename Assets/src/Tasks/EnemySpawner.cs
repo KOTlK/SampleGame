@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 [System.Serializable]
-public class EnemySpawner : IEnumerator {
+public class EnemySpawner : Task {
     public Vector3 MaxBounds;
     public Vector3 MinBounds;
     public Vector3 WorldCenter = Vector3.zero;
@@ -10,12 +10,8 @@ public class EnemySpawner : IEnumerator {
     public float   SpawnRate; // spawns per minute
     
     private float _delay;
-
-    public object Current => null;
     
-    public void Reset() { }
-    
-    public bool MoveNext() {
+    public override bool Update() {
         var em = Singleton<EntityManager>.Instance;
         
         _delay += Time.deltaTime;
@@ -25,7 +21,7 @@ public class EnemySpawner : IEnumerator {
             _delay = 0f;
         }
         
-        return true;
+        return false;
     }
     
     private Vector3 GetRandomPosition(){

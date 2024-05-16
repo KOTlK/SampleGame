@@ -21,7 +21,7 @@ public class Projectile : Entity {
     public override void Execute() {
         TimeToLive -= Time.deltaTime;
         
-        if(TimeToLive <= 0){
+        if(TimeToLive <= 0) {
             if(Em.IsAlive(Id)) {
                 Em.DestroyEntity(Id);
             }

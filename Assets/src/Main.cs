@@ -18,6 +18,7 @@ public class Main : MonoBehaviour {
     public TaskRunner    TaskRunner;
     public EnemySpawner  SpawnerTask;
     public Events        Events;
+    public Projectile    ProjectilePrefab;
     
     private GameState _state;
     
@@ -39,18 +40,6 @@ public class Main : MonoBehaviour {
         EntityManager.BakeEntities();
         ToMainMenu();
         TaskRunner.StartTask(TaskGroupType.Gameplay, SpawnerTask);
-        TaskRunner.StartTask(TaskGroupType.ExecuteAlways, TestingTask());
-    }
-    
-    private IEnumerator TestingTask() {
-        Debug.Log("Enter");
-        
-        for(var i = 0; i < 10; ++i) {
-            Debug.Log($"Iteration: {i}, Time: {Time.frameCount}");
-            yield return null;
-        }
-        
-        Debug.Log("Exit");
     }
     
     private void OnDestroy() {

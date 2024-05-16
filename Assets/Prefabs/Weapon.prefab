@@ -98,15 +98,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: 0
-  Alive: 0
   Flags: 4
-  Type: 0
+  Type: 4
   Em: {fileID: 0}
+  AutoBake: 0
   Owner: {fileID: 0}
   BulletPrefab: {fileID: 6149124908881208667, guid: add899e5380e12d4c9aa4ba1032426a4,
     type: 3}
   Muzzle: {fileID: 7785187548564230204}
-  FireRate: 10
+  FireRate: 100
   CanShoot: 0
 --- !u!1 &8486584680467794212
 GameObject:

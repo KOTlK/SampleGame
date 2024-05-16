@@ -12,6 +12,10 @@ public enum EntityFlags
 public enum EntityType
 {
     Utility,
+    Player,
+    Enemy,
+    Bullet,
+    Weapon
     // types goes here
 }
 

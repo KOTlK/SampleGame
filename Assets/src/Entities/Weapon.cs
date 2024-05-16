@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Weapon : Entity{
+public class Weapon : Entity {
     public Entity     Owner;
     public Projectile BulletPrefab;
     public Transform  Muzzle;
@@ -9,19 +9,16 @@ public class Weapon : Entity{
     
     private float _timePassed;
     
-    public override void Execute(){
-        if(CanShoot)
-            return;
-            
+    public override void Execute() {
         _timePassed += Time.deltaTime;
         
-        if(_timePassed >= 1 / FireRate){
+        if(_timePassed >= 1 / FireRate) {
             CanShoot = true;   
         }
     }
     
-    public void Shoot(Vector3 direction){
-        if(CanShoot){
+    public void Shoot(Vector3 direction) {
+        if(CanShoot) {
             var bullet = (Projectile)Em.CreateEntity(
             BulletPrefab, 
             Muzzle.position, 
@@ -29,6 +26,8 @@ public class Weapon : Entity{
             BulletPrefab.transform.localScale);
             
             bullet.Shoot(direction, Owner);
+            CanShoot = false;
+            _timePassed = 0f;
         }
     }
 }
