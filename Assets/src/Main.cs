@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using static Assertions;
 
 public enum GameState {
     MainMenu,
@@ -12,6 +13,7 @@ public enum GameState {
 public class Main : MonoBehaviour {
     public TMP_Text      KilledEnemiesText;
     public TMP_Text      KilledEnemiesByPlayerText;
+    public TMP_Text      DebugText;
     public Player        Player;
     public PlayerInput   PlayerInput;
     public EntityManager EntityManager;
@@ -86,7 +88,6 @@ public class Main : MonoBehaviour {
             }
             break;
         }
-        
     }
     
     private void ToMainMenu() {
