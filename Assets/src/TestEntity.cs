@@ -20,9 +20,8 @@ public class TestEntity : Entity {
             }
 
             Move(new Vector3(x, y, z) * (Time.deltaTime * Speed));
-            
 
-            var nearbyEntitiesCount = Em.EntitiesTable.Query(transform.position, _queriedEntities, SearchRadius);
+            var nearbyEntitiesCount = QueryNearbyEntities(SearchRadius, _queriedEntities);
             for(var i = 0; i < nearbyEntitiesCount; ++i) {
                 var (alive, ent) = Em.GetEntity(_queriedEntities[i]);
                 Debug.DrawLine(transform.position, ent.transform.position, Color.red);
