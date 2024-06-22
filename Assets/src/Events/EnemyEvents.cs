@@ -2,7 +2,7 @@ using TMPro;
 using System;
 
 public struct EnemyDiedEvent{
-    public int killer;
+    public uint killer;
 }
 
 public class EnemyDiedEventHandler : IDisposable{

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class Enemy : Character{
-    public int       Target;
+    public uint       Target;
     public Damage    Damage;
     public float     AttackRadius;
     public LayerMask TargetsLayer;

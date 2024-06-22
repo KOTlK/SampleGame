@@ -5,7 +5,7 @@ public class TestEntity : Entity {
     public float SearchRadius = 10f;
     public float Speed = 10f;
 
-    private static int[] _queriedEntities = new int[256];
+    private static uint[] _queriedEntities = new uint[256];
 
     public override void Execute() {
         if(Controlled) {

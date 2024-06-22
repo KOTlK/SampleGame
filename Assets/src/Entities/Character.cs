@@ -2,8 +2,8 @@ using UnityEngine;
 
 [System.Serializable]
 public struct Damage {
-    public int amount;
-    public int sender;
+    public int  amount;
+    public uint sender;
 }
 
 public class Character : Entity {
