@@ -54,7 +54,7 @@ public class Main : MonoBehaviour {
         switch(_state) {
             case GameState.MainMenu:
             {
-                if(Input.GetKeyDown(KeyCode.Space)) {
+                if(Input.GetKeyDown(KeyCode.Tab)) {
                     ToGameplay();
                 }
             }
