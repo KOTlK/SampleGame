@@ -1881,7 +1881,9 @@ MonoBehaviour:
   DebugCamera: {fileID: 2007050187}
   PreviousCamera: {fileID: 0}
   CameraDefaultSpeed: 5
+  CameraFastSpeed: 15
   CameraSensitivity: 120
+  RollSensitivity: 50
   Enabled: 0
   SortEntities: 0
   KeyToEnable: 96
@@ -1894,7 +1896,8 @@ MonoBehaviour:
   AdditionalFieldOffset: 0.1
   AdditionalFieldWidth: 0.2
   AdditionalFieldHeight: 0.035
-  VectorInputWidth: 0.07
+  SingleValueOffset: 0.23
+  SingleValueWidth: 0.06
   ItemsPerScroll: 1
   FirstEntity: 0
   FirstField: 0
@@ -1902,6 +1905,11 @@ MonoBehaviour:
   SortedEntitiesCount: 0
   SelectedEntity: 0
   PreviousEntity: 0
+  StringBuffer: 
+  GoToOffset: 0.23
+  GoToWidth: 0.06
+  GoToUp: 5
+  GoToForward: -5
 --- !u!114 &1409290248 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
