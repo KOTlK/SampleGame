@@ -1912,8 +1912,11 @@ MonoBehaviour:
   GoToForward: -5
   EnumOffset: 0.09
   EnumWidth: 0.2
+  EnumElementsOffset: 0.08
   EnumElementHeight: 0.04
   EnumElementWidth: 0.14
+  CurrentEnumEntity: {fileID: 0}
+  EnumDrawHeight: 0
   EnumDrawnThisFrame: 0
 --- !u!114 &1409290248 stripped
 MonoBehaviour:
