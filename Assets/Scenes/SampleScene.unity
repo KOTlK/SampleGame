@@ -1936,6 +1936,177 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 341881045}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1572651612
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1572651614}
+  - component: {fileID: 1572651615}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1572651614
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572651612}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 15.759422, y: -1.2243509, z: -0.22646058}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1572651615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572651612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c50fbc9e5ede2ac48b6228b50f048b2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Objects:
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  - Value: 0
+    Value2: 0
+    NestedObject:
+      Value1: 0
+      Value2: 0
+      Value3:
+        Val1: 0
+        Val2: 0
+  Floats:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  Ints: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
+  BaseTypes:
+    Vector3: {x: 10, y: 20, z: 30}
+    Vector3Int: {x: 8, y: 25, z: 4}
+    Vector2: {x: 68, y: 2}
+    Vector2Int: {x: 27, y: 257}
+    Vector4: {x: 2, y: 4, z: 6, w: 0}
+    Quaternion: {x: 0.0013126443, y: 0.007678739, z: 0.00046989866, w: 0.99996954}
+    Matrix:
+      e00: 1
+      e01: 2
+      e02: 3
+      e03: 7
+      e10: 2578
+      e11: 27
+      e12: 75
+      e13: 75
+      e20: 52
+      e21: 58
+      e22: 74
+      e23: 948
+      e30: 548
+      e31: 89
+      e32: 689
+      e33: 9
+    Double: 5252
+    Int: 25
+    UInt: 2525
+    Long: 52
+    ULong: 5245
+    Short: 82
+    UShort: 728
+    Byte: 25
+    SByte: 25
+    Bool: 1
 --- !u!1 &2007050184
 GameObject:
   m_ObjectHideFlags: 0
