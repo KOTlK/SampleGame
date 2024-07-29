@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Unity.Collections;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -67,8 +68,13 @@ public struct NestedDefaultObject : ISave {
     }
 }
 
-[System.Serializable]
-public struct BaseTypes : ISave {
+public class SavingTest : MonoBehaviour {
+    public SaveFile Save;
+    public SavingObject[] Objects = new SavingObject[10000];
+    public NativeArray<int> NativeInts = new NativeArray<int>(10, Allocator.Persistent);
+    public NativeArray<SavingObject> NativeObjects = new NativeArray<SavingObject>(10, Allocator.Persistent);
+    public float[] Floats = new float[10000];
+    public int[] Ints = new int[10240];
     public Vector3 Vector3;
     public Vector3Int Vector3Int;
     public Vector2 Vector2;
@@ -86,55 +92,6 @@ public struct BaseTypes : ISave {
     public byte   Byte;
     public sbyte  SByte;
     public bool   Bool;
-    
-    public void Save(SaveFile sf) {
-        sf.Write(nameof(Vector3), Vector3);
-        sf.Write(nameof(Vector3Int), Vector3Int);
-        sf.Write(nameof(Vector2), Vector2);
-        sf.Write(nameof(Vector2Int), Vector2Int);
-        sf.Write(nameof(Vector4), Vector4);
-        sf.Write(nameof(Quaternion), Quaternion);
-        sf.Write(nameof(Matrix), Matrix);
-        sf.Write(nameof(Double), Double);
-        sf.Write(nameof(Int), Int);
-        sf.Write(nameof(UInt), UInt);
-        sf.Write(nameof(Long), Long);
-        sf.Write(nameof(ULong), ULong);
-        sf.Write(nameof(Short), Short);
-        sf.Write(nameof(UShort), UShort);
-        sf.Write(nameof(Byte), Byte);
-        sf.Write(nameof(SByte), SByte);
-        sf.Write(nameof(Bool), Bool);
-    }
-
-    public void Load(SaveFile sf) {
-        Vector3 = sf.ReadVector3(nameof(Vector3));
-        // Vector3Int = sf.ReadVector3Int(nameof(Vector3Int));
-        // Vector2 = sf.ReadVector2(nameof(Vector2));
-        // Vector2Int = sf.ReadVector2Int(nameof(Vector2Int));
-        // Vector4 = sf.ReadVector4(nameof(Vector4));
-        // Quaternion = sf.ReadQuaternion(nameof(Quaternion));
-        // Matrix = sf.ReadMatrix4x4(nameof(Matrix));
-
-        Double = sf.ReadDouble(nameof(Double));
-        Int = sf.ReadInt(nameof(Int));
-        UInt = sf.ReadUInt(nameof(UInt));
-        Long = sf.ReadLong(nameof(Long));
-        ULong = sf.ReadULong(nameof(ULong));
-        Short = sf.ReadShort(nameof(Short));
-        UShort = sf.ReadUShort(nameof(UShort));
-        Byte = sf.ReadByte(nameof(Byte));
-        SByte = sf.ReadSByte(nameof(SByte));
-        Bool = sf.ReadBool(nameof(Bool));
-    }
-}
-
-public class SavingTest : MonoBehaviour {
-    public SaveFile Save;
-    public SavingObject[] Objects = new SavingObject[10000];
-    public float[] Floats = new float[10000];
-    public int[] Ints = new int[10240];
-    public BaseTypes BaseTypes;
 
     private void Start() {
         var sw = new Stopwatch();
@@ -144,7 +101,24 @@ public class SavingTest : MonoBehaviour {
         // Save.Write(nameof(Objects), Objects.Length, Objects);
         // Save.Write(nameof(Floats), Floats.Length, Floats);
         // Save.Write(nameof(Ints), Ints.Length, Ints);
-        // Save.Write(nameof(BaseTypes), BaseTypes);
+        
+        // Save.Write(nameof(Vector3), Vector3);
+        // Save.Write(nameof(Vector3Int), Vector3Int);
+        // Save.Write(nameof(Vector2), Vector2);
+        // Save.Write(nameof(Vector2Int), Vector2Int);
+        // Save.Write(nameof(Vector4), Vector4);
+        // Save.Write(nameof(Quaternion), Quaternion);
+        // Save.Write(nameof(Matrix), Matrix);
+        // Save.Write(nameof(Double), Double);
+        // Save.Write(nameof(Int), Int);
+        // Save.Write(nameof(UInt), UInt);
+        // Save.Write(nameof(Long), Long);
+        // Save.Write(nameof(ULong), ULong);
+        // Save.Write(nameof(Short), Short);
+        // Save.Write(nameof(UShort), UShort);
+        // Save.Write(nameof(Byte), Byte);
+        // Save.Write(nameof(SByte), SByte);
+        // Save.Write(nameof(Bool), Bool);
         // sw.Stop();
 
         // Debug.Log($"Write Time: {sw.ElapsedMilliseconds}");
@@ -163,16 +137,31 @@ public class SavingTest : MonoBehaviour {
         Debug.Log($"File Parse Time: {sw.ElapsedMilliseconds}");
 
         sw.Restart();
-        Objects   = Save.ReadObjectArray<SavingObject>(nameof(Objects), () => new SavingObject());
-        Floats    = Save.ReadFloatArray(nameof(Floats));
-        Ints      = Save.ReadIntArray(nameof(Ints));
-        BaseTypes = Save.ReadValueType<BaseTypes>(nameof(BaseTypes));
+        Objects    = Save.ReadUnmanagedObjectArray<SavingObject>(nameof(Objects));
+        NativeObjects = Save.ReadNativeObjectArray<SavingObject>(nameof(Objects), Allocator.Persistent);
+        NativeInts = Save.ReadNativeIntArray(nameof(Ints), Allocator.Persistent);
+        Floats     = Save.ReadFloatArray(nameof(Floats));
+        Ints       = Save.ReadIntArray(nameof(Ints));
+        Vector3    = Save.ReadVector3(nameof(Vector3));
+        Vector3Int = Save.ReadVector3Int(nameof(Vector3Int));
+        Vector2    = Save.ReadVector2(nameof(Vector2));
+        Vector2Int = Save.ReadVector2Int(nameof(Vector2Int));
+        Vector4    = Save.ReadVector4(nameof(Vector4));
+        Quaternion = Save.ReadQuaternion(nameof(Quaternion));
+        Matrix     = Save.ReadMatrix4x4(nameof(Matrix));
+
+        Double = Save.ReadDouble(nameof(Double));
+        Int    = Save.ReadInt(nameof(Int));
+        UInt   = Save.ReadUInt(nameof(UInt));
+        Long   = Save.ReadLong(nameof(Long));
+        ULong  = Save.ReadULong(nameof(ULong));
+        Short  = Save.ReadShort(nameof(Short));
+        UShort = Save.ReadUShort(nameof(UShort));
+        Byte   = Save.ReadByte(nameof(Byte));
+        SByte  = Save.ReadSByte(nameof(SByte));
+        Bool   = Save.ReadBool(nameof(Bool));
         sw.Stop();
 
         Debug.Log($"Reconstruction Time: {sw.ElapsedMilliseconds}");
-    }
-
-    private ISave NewSavingObject() {
-        return new SavingObject();
     }
 }

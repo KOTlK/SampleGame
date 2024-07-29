@@ -37,15 +37,11 @@ public class SaveFile {
     }
 
     public float         Version;
-    public char[]        StringBuffer = new char[256];
-    public int           StringBufferPointer;
     public string[]      LoadedLines;
     public int           LinesCount;
     public StringBuilder Sb = new();
     public int           CurrentOffset;
-    public Dictionary<string, ObjectNode>  SaveHierarchy = new ();
-    public int           SavedObjectsCount;
-    public int           CurrentObject;
+    public ObjectNode    Root;
     public Stack<ObjectNode> ObjectStack = new();
 
     public const int Offset = 4;
@@ -60,11 +56,9 @@ public class SaveFile {
     
     public void SaveToFile(string path, string name) {
         path += $"/{name}{Extension}";
-        Debug.Log(path);
         if(File.Exists(path)) {
             File.Delete(path);
             File.CreateText(path).Close();
-            Debug.Log("Removing existing file");
         }
         
         File.WriteAllText(path, Sb.ToString());
@@ -72,6 +66,12 @@ public class SaveFile {
     }
 
     public void NewFromExistingFile(string path, string name) {
+        Root = new ObjectNode
+        {
+            Fields = new(),
+            NestedObjects = new()
+        };
+
         path += $"/{name}{Extension}";
         if(File.Exists(path)) {
             LoadedLines = File.ReadAllLines(path);
@@ -95,12 +95,16 @@ public class SaveFile {
             if(separateLine.Length > 1 && separateLine[1] == "{") {
                 startLine++;
                 SaveObject(separateLine[0], ParseObject(ref startLine, ObjectNode.Create()));
+            } else if(separateLine.Length == 2) {
+                Root.Fields.Add(new Field(separateLine[0], separateLine[1]));
+                startLine++;
             } else {
                 startLine++;
             }
         }
 
-        Debug.Log(SavedObjectsCount);
+        Debug.Log(Root.NestedObjects.Count);
+        Debug.Log(Root.Fields.Count);
     }
 
     public ObjectNode ParseObject(ref int startLine, ObjectNode node = default) {
@@ -132,8 +136,7 @@ public class SaveFile {
     }
 
     public void SaveObject(string name, ObjectNode node) {
-        SaveHierarchy.Add(name, node);
-        SavedObjectsCount++;
+        Root.PushObject(name, node);
     }
 
     public void Write(string name, ISave save) {
@@ -290,7 +293,7 @@ public class SaveFile {
     public void Write(string name, Matrix4x4 value) {
         Sb.Append(name);
         AddNameSeparator();
-        Sb.Append($"{value.GetColumn(0)}, {value.GetColumn(1)}, {value.GetColumn(2)}, {value.GetColumn(3)}");
+        Sb.Append($"{value.GetRow(0)}, {value.GetRow(1)}, {value.GetRow(2)}, {value.GetRow(3)}");
         NextLine();
     }
 
@@ -730,7 +733,12 @@ public class SaveFile {
 
     public void BeginReadObject(string name) {
         if(ObjectStack.Count == 0) {
-            ObjectStack.Push(SaveHierarchy[name]);
+            ObjectStack.Push(Root);
+            var currentNode = GetCurrentNode();
+            
+            if(currentNode.NestedObjects.TryGetValue(name, out var obj)) {
+                ObjectStack.Push(obj);
+            }
         } else {
             var currentNode = GetCurrentNode();
             
@@ -759,15 +767,17 @@ public class SaveFile {
 
     public void EndReadObject() {
         if(ObjectStack.Count == 0) {
-            CurrentObject++;
+            ObjectStack.Push(Root);
         } else {
             ObjectStack.Pop();
 
             if(ObjectStack.Count == 0) {
-                CurrentObject++;
+                ObjectStack.Push(Root);
             }
         }
     }
+
+#region ReadBasicTypes
 
     public int ReadInt(string name, int defaultValue = 0) {
         foreach(var field in GetCurrentNode().Fields) {
@@ -907,7 +917,6 @@ public class SaveFile {
                 var ret = new Vector3();
                 var value = field.Value;
                 var nums = value.TrimStart('(').TrimEnd(')').Split(',');
-                Debug.Log(nums.Length);
                 for(var i = 0; i < 3; ++i) {
                     if(float.TryParse(nums[i], out var val)) {
                         ret[i] = val;
@@ -921,7 +930,149 @@ public class SaveFile {
         return defaultValue;
     }
 
-    public T[] ReadObjectArray<T>(string name, Func<ISave> createObjectFunc) 
+    public Vector3Int ReadVector3Int(string name, Vector3Int defaultValue = new()) {
+        foreach(var field in GetCurrentNode().Fields) {
+            if(field.Name == name) {
+                var ret = new Vector3Int();
+                var value = field.Value;
+                var nums = value.TrimStart('(').TrimEnd(')').Split(',');
+                for(var i = 0; i < 3; ++i) {
+                    if(int.TryParse(nums[i], out var val)) {
+                        ret[i] = val;
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    public Vector2 ReadVector2(string name, Vector2 defaultValue = new()) {
+        foreach(var field in GetCurrentNode().Fields) {
+            if(field.Name == name) {
+                var ret = new Vector2();
+                var value = field.Value;
+                var nums = value.TrimStart('(').TrimEnd(')').Split(',');
+                for(var i = 0; i < 2; ++i) {
+                    if(float.TryParse(nums[i], out var val)) {
+                        ret[i] = val;
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    public Vector2Int ReadVector2Int(string name, Vector2Int defaultValue = new()) {
+        foreach(var field in GetCurrentNode().Fields) {
+            if(field.Name == name) {
+                var ret = new Vector2Int();
+                var value = field.Value;
+                var nums = value.TrimStart('(').TrimEnd(')').Split(',');
+                for(var i = 0; i < 2; ++i) {
+                    if(int.TryParse(nums[i], out var val)) {
+                        ret[i] = val;
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    public Vector4 ReadVector4(string name, Vector4 defaultValue = new()) {
+        foreach(var field in GetCurrentNode().Fields) {
+            if(field.Name == name) {
+                var ret = new Vector4();
+                var value = field.Value;
+                var nums = value.TrimStart('(').TrimEnd(')').Split(',');
+                for(var i = 0; i < 4; ++i) {
+                    if(float.TryParse(nums[i], out var val)) {
+                        ret[i] = val;
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    public Quaternion ReadQuaternion(string name, Quaternion defaultValue = new()) {
+        foreach(var field in GetCurrentNode().Fields) {
+            if(field.Name == name) {
+                var ret = new Quaternion();
+                var value = field.Value;
+                var nums = value.TrimStart('(').TrimEnd(')').Split(',');
+                for(var i = 0; i < 4; ++i) {
+                    if(float.TryParse(nums[i], out var val)) {
+                        ret[i] = val;
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    public Matrix4x4 ReadMatrix4x4(string name, Matrix4x4 defaultValue = new()) {
+        foreach(var field in GetCurrentNode().Fields) {
+            if(field.Name == name) {
+                var ret = new Matrix4x4();
+                var value   = field.Value;
+                var currentRow = 0;
+                var currentVector = new Vector4();
+                var currentComp   = 0;
+                var currString = "";
+
+                for(var i = 0; i < value.Length; ++i) {
+                    if(value[i] == '(') {
+                        currentVector = new Vector4();
+                        currentComp = 0;
+                        currString = "";
+                    } else if (value[i] == ')' && i == value.Length - 1) {
+                        if(float.TryParse(currString, out var val)) {
+                            currentVector[currentComp] = val;
+                        }
+                        ret.SetRow(currentRow, currentVector);
+                    } else if(value[i] == ')' && value[i + 1] == ',') {
+                        if(float.TryParse(currString, out var val)) {
+                            currentVector[currentComp] = val;
+                        } 
+
+                        ret.SetRow(currentRow++, currentVector);
+                    } else if (value[i] == ',' && value[i - 1] != ')') {
+                        if(float.TryParse(currString, out var val)) {
+                            currentVector[currentComp] = val;
+                        } 
+                        
+                        currentComp++;
+                        currString = "";
+                    } else if(value[i] != '(' && value[i] != ')' && value[i] != ' ' && value[i] != ',') {
+                        currString += value[i];
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+        return defaultValue;
+    }
+
+#endregion
+
+    public T[] ReadObjectArray<T>(string name, Func<T> createObjectFunc) 
     where T : ISave {
         BeginReadObject(name);
         var count = ReadInt("Count");
@@ -930,6 +1081,7 @@ public class SaveFile {
         for(var i = 0; i < count; ++i) {
             var obj = createObjectFunc();
             ReadObject($"{name}ArrayElement{i}", obj);
+            arr[i] = obj;
         }
 
         EndReadObject();
@@ -937,6 +1089,22 @@ public class SaveFile {
         return arr;
     }
 
+    public T[] ReadUnmanagedObjectArray<T>(string name) 
+    where T : unmanaged, ISave {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new T[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadValueType<T>($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+#region ReadBasicArrays
     public int[] ReadIntArray(string name) {
         BeginReadObject(name);
         var count = ReadInt("Count");
@@ -944,6 +1112,118 @@ public class SaveFile {
 
         for(var i = 0; i < count; ++i) {
             arr[i] = ReadInt($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public uint[] ReadUIntArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new uint[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadUInt($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public short[] ReadShortArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new short[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadShort($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public ushort[] ReadUShortArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new ushort[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadUShort($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public long[] ReadLongArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new long[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadLong($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public ulong[] ReadULongArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new ulong[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadULong($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public byte[] ReadByteArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new byte[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadByte($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public sbyte[] ReadSByteArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new sbyte[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadSByte($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public bool[] ReadBoolArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new bool[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadBool($"{name}ArrayElement{i}");
         }
 
         EndReadObject();
@@ -964,4 +1244,387 @@ public class SaveFile {
 
         return arr;
     }
+
+    public double[] ReadDoubleArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new double[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadDouble($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public Vector3[] ReadVector3Array(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new Vector3[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadVector3($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public Vector3Int[] ReadVector3IntArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new Vector3Int[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadVector3Int($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public Vector2[] ReadVector2Array(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new Vector2[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadVector2($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }    
+
+    public Vector2Int[] ReadVector2IntArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new Vector2Int[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadVector2Int($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public Vector4[] ReadVector4Array(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new Vector4[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadVector4($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public Quaternion[] ReadQuaternionArray(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new Quaternion[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadQuaternion($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public Matrix4x4[] ReadMatrix4x4Array(string name) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new Matrix4x4[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadMatrix4x4($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+#endregion
+
+public NativeArray<T> ReadNativeObjectArray<T>(string name, Allocator allocator) // @Untested
+where T : unmanaged, ISave {
+    BeginReadObject(name);
+    var count = ReadInt("Count");
+    var arr = new NativeArray<T>(count, allocator);
+
+    for(var i = 0; i < count; ++i) {
+        arr[i] = ReadValueType<T>($"{name}ArrayElement{i}");
+    }
+    
+    EndReadObject();
+
+    return arr;
+}
+
+// @Untested Everything inside ReadBasicNativeArrays region is generated by ChatGPT
+#region ReadBasicNativeArrays
+    public NativeArray<int> ReadNativeIntArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new NativeArray<int>(count, allocator);
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadInt($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<uint> ReadNativeUIntArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<uint>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadUInt($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<short> ReadNativeShortArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<short>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadShort($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<ushort> ReadNativeUShortArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<ushort>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadUShort($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<long> ReadNativeLongArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<long>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadLong($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<ulong> ReadNativeULongArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<ulong>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadULong($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<byte> ReadNativeByteArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<byte>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadByte($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<sbyte> ReadNativeSByteArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<sbyte>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadSByte($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<bool> ReadNativeBoolArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<bool>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadBool($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<float> ReadNativeFloatArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<float>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadFloat($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<double> ReadNativeDoubleArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<double>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadDouble($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<Vector3> ReadNativeVector3Array(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<Vector3>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadVector3($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<Vector3Int> ReadNativeVector3IntArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<Vector3Int>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadVector3Int($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<Vector2> ReadNativeVector2Array(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<Vector2>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadVector2($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<Vector2Int> ReadNativeVector2IntArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<Vector2Int>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadVector2Int($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<Vector4> ReadNativeVector4Array(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<Vector4>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadVector4($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<Quaternion> ReadNativeQuaternionArray(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<Quaternion>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadQuaternion($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public NativeArray<Matrix4x4> ReadNativeMatrix4x4Array(string name, Allocator allocator) {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr = new NativeArray<Matrix4x4>(count, allocator);
+
+        for (var i = 0; i < count; ++i) {
+            arr[i] = ReadMatrix4x4($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+#endregion
 }

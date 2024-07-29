@@ -2073,40 +2073,39 @@ MonoBehaviour:
   - 0
   - 0
   Ints: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
-  BaseTypes:
-    Vector3: {x: 10, y: 20, z: 30}
-    Vector3Int: {x: 8, y: 25, z: 4}
-    Vector2: {x: 68, y: 2}
-    Vector2Int: {x: 27, y: 257}
-    Vector4: {x: 2, y: 4, z: 6, w: 0}
-    Quaternion: {x: 0.0013126443, y: 0.007678739, z: 0.00046989866, w: 0.99996954}
-    Matrix:
-      e00: 1
-      e01: 2
-      e02: 3
-      e03: 7
-      e10: 2578
-      e11: 27
-      e12: 75
-      e13: 75
-      e20: 52
-      e21: 58
-      e22: 74
-      e23: 948
-      e30: 548
-      e31: 89
-      e32: 689
-      e33: 9
-    Double: 5252
-    Int: 25
-    UInt: 2525
-    Long: 52
-    ULong: 5245
-    Short: 82
-    UShort: 728
-    Byte: 25
-    SByte: 25
-    Bool: 1
+  Vector3: {x: 1, y: 2, z: 3}
+  Vector3Int: {x: 3, y: 4, z: 5}
+  Vector2: {x: 2, y: 3}
+  Vector2Int: {x: 5, y: 6}
+  Vector4: {x: 3, y: 45, z: 5, w: 0}
+  Quaternion: {x: 0.0017457088, y: 0.00043480855, z: 0.0008719015, w: 0.999998}
+  Matrix:
+    e00: 1
+    e01: 2
+    e02: 3
+    e03: 4
+    e10: 5
+    e11: 5
+    e12: 6
+    e13: 3
+    e20: 2
+    e21: 3
+    e22: 1
+    e23: 6
+    e30: 16
+    e31: 7
+    e32: 1
+    e33: 53
+  Double: 3245.34
+  Int: -2344
+  UInt: 234
+  Long: -7635879632
+  ULong: 273568975
+  Short: -3455
+  UShort: 3455
+  Byte: 0
+  SByte: 120
+  Bool: 1
 --- !u!1 &2007050184
 GameObject:
   m_ObjectHideFlags: 0
