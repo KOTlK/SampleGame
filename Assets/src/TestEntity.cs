@@ -23,8 +23,9 @@ public class TestEntity : Entity {
 
             var nearbyEntitiesCount = QueryNearbyEntities(SearchRadius, _queriedEntities);
             for(var i = 0; i < nearbyEntitiesCount; ++i) {
-                var (alive, ent) = Em.GetEntity(_queriedEntities[i]);
-                Debug.DrawLine(transform.position, ent.transform.position, Color.red);
+                if(Em.GetEntity(Em.GetHandle(_queriedEntities[i]), out var e)) {
+                    Debug.DrawLine(transform.position, e.transform.position, Color.red);
+                }
             } 
         }
     }

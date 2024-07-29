@@ -69,6 +69,7 @@ public struct NestedDefaultObject : ISave {
 }
 
 public class SavingTest : MonoBehaviour {
+    public EntityManager Em;
     public SaveFile Save;
     public SavingObject[] Objects = new SavingObject[10000];
     public NativeArray<int> NativeInts = new NativeArray<int>(10, Allocator.Persistent);
@@ -94,74 +95,83 @@ public class SavingTest : MonoBehaviour {
     public bool   Bool;
 
     private void Start() {
-        var sw = new Stopwatch();
         Save = new SaveFile();
-        // sw.Start();
-        // Save.NewFile(0.01f);
-        // Save.Write(nameof(Objects), Objects.Length, Objects);
-        // Save.Write(nameof(Floats), Floats.Length, Floats);
-        // Save.Write(nameof(Ints), Ints.Length, Ints);
-        
-        // Save.Write(nameof(Vector3), Vector3);
-        // Save.Write(nameof(Vector3Int), Vector3Int);
-        // Save.Write(nameof(Vector2), Vector2);
-        // Save.Write(nameof(Vector2Int), Vector2Int);
-        // Save.Write(nameof(Vector4), Vector4);
-        // Save.Write(nameof(Quaternion), Quaternion);
-        // Save.Write(nameof(Matrix), Matrix);
-        // Save.Write(nameof(Double), Double);
-        // Save.Write(nameof(Int), Int);
-        // Save.Write(nameof(UInt), UInt);
-        // Save.Write(nameof(Long), Long);
-        // Save.Write(nameof(ULong), ULong);
-        // Save.Write(nameof(Short), Short);
-        // Save.Write(nameof(UShort), UShort);
-        // Save.Write(nameof(Byte), Byte);
-        // Save.Write(nameof(SByte), SByte);
-        // Save.Write(nameof(Bool), Bool);
-        // sw.Stop();
+    }
 
-        // Debug.Log($"Write Time: {sw.ElapsedMilliseconds}");
+    private void Update() {
+        var sw = new Stopwatch();
 
-        // sw.Restart();
-        // Save.SaveToFile(Application.persistentDataPath, "TestSave");
-        // sw.Stop();
+        if (Input.GetKeyDown(KeyCode.F5)) {
+            sw.Start();
+            Save.NewFile(0.01f);
+            Save.Write(nameof(Objects), Objects.Length, Objects);
+            Save.Write(nameof(Floats), Floats.Length, Floats);
+            Save.Write(nameof(Ints), Ints.Length, Ints);
+            Save.Write(nameof(Em), Em);
+            Save.Write(nameof(Vector3), Vector3);
+            Save.Write(nameof(Vector3Int), Vector3Int);
+            Save.Write(nameof(Vector2), Vector2);
+            Save.Write(nameof(Vector2Int), Vector2Int);
+            Save.Write(nameof(Vector4), Vector4);
+            Save.Write(nameof(Quaternion), Quaternion);
+            Save.Write(nameof(Matrix), Matrix);
+            Save.Write(nameof(Double), Double);
+            Save.Write(nameof(Int), Int);
+            Save.Write(nameof(UInt), UInt);
+            Save.Write(nameof(Long), Long);
+            Save.Write(nameof(ULong), ULong);
+            Save.Write(nameof(Short), Short);
+            Save.Write(nameof(UShort), UShort);
+            Save.Write(nameof(Byte), Byte);
+            Save.Write(nameof(SByte), SByte);
+            Save.WriteBool(nameof(Bool), Bool);
+            sw.Stop();
 
-        // Debug.Log($"File Write Time: {sw.ElapsedMilliseconds}");
+            Debug.Log($"Write Time: {sw.ElapsedMilliseconds}");
 
+            sw.Restart();
+            Save.SaveToFile(Application.persistentDataPath, "TestSave");
+            sw.Stop();
 
-        sw.Restart();
-        Save.NewFromExistingFile(Application.persistentDataPath, "TestSave");
-        sw.Stop();
+            Debug.Log($"File Write Time: {sw.ElapsedMilliseconds}");
+        }
 
-        Debug.Log($"File Parse Time: {sw.ElapsedMilliseconds}");
+        if(Input.GetKeyDown(KeyCode.F9)) {
+            sw.Restart();
+            Save.NewFromExistingFile(Application.persistentDataPath, "TestSave");
+            sw.Stop();
 
-        sw.Restart();
-        Objects    = Save.ReadUnmanagedObjectArray<SavingObject>(nameof(Objects));
-        NativeObjects = Save.ReadNativeObjectArray<SavingObject>(nameof(Objects), Allocator.Persistent);
-        NativeInts = Save.ReadNativeIntArray(nameof(Ints), Allocator.Persistent);
-        Floats     = Save.ReadFloatArray(nameof(Floats));
-        Ints       = Save.ReadIntArray(nameof(Ints));
-        Vector3    = Save.ReadVector3(nameof(Vector3));
-        Vector3Int = Save.ReadVector3Int(nameof(Vector3Int));
-        Vector2    = Save.ReadVector2(nameof(Vector2));
-        Vector2Int = Save.ReadVector2Int(nameof(Vector2Int));
-        Vector4    = Save.ReadVector4(nameof(Vector4));
-        Quaternion = Save.ReadQuaternion(nameof(Quaternion));
-        Matrix     = Save.ReadMatrix4x4(nameof(Matrix));
+            Debug.Log($"File Parse Time: {sw.ElapsedMilliseconds}");
 
-        Double = Save.ReadDouble(nameof(Double));
-        Int    = Save.ReadInt(nameof(Int));
-        UInt   = Save.ReadUInt(nameof(UInt));
-        Long   = Save.ReadLong(nameof(Long));
-        ULong  = Save.ReadULong(nameof(ULong));
-        Short  = Save.ReadShort(nameof(Short));
-        UShort = Save.ReadUShort(nameof(UShort));
-        Byte   = Save.ReadByte(nameof(Byte));
-        SByte  = Save.ReadSByte(nameof(SByte));
-        Bool   = Save.ReadBool(nameof(Bool));
-        sw.Stop();
+            sw.Restart();
+            Objects    = Save.ReadUnmanagedObjectArray<SavingObject>(nameof(Objects));
+            NativeObjects = Save.ReadNativeObjectArray<SavingObject>(nameof(Objects), Allocator.Persistent);
+            NativeInts = Save.ReadNativeIntArray(nameof(Ints), Allocator.Persistent);
+            Floats     = Save.ReadFloatArray(nameof(Floats));
+            Ints       = Save.ReadIntArray(nameof(Ints));
+            Vector3    = Save.ReadVector3(nameof(Vector3));
+            Vector3Int = Save.ReadVector3Int(nameof(Vector3Int));
+            Vector2    = Save.ReadVector2(nameof(Vector2));
+            Vector2Int = Save.ReadVector2Int(nameof(Vector2Int));
+            Vector4    = Save.ReadVector4(nameof(Vector4));
+            Quaternion = Save.ReadQuaternion(nameof(Quaternion));
+            Matrix     = Save.ReadMatrix4x4(nameof(Matrix));
 
-        Debug.Log($"Reconstruction Time: {sw.ElapsedMilliseconds}");
+            Double = Save.ReadDouble(nameof(Double));
+            Int    = Save.ReadInt(nameof(Int));
+            UInt   = Save.ReadUInt(nameof(UInt));
+            Long   = Save.ReadLong(nameof(Long));
+            ULong  = Save.ReadULong(nameof(ULong));
+            Short  = Save.ReadShort(nameof(Short));
+            UShort = Save.ReadUShort(nameof(UShort));
+            Byte   = Save.ReadByte(nameof(Byte));
+            SByte  = Save.ReadSByte(nameof(SByte));
+            Bool   = Save.ReadBool(nameof(Bool));
+            
+            Save.ReadObject(nameof(Em), Em);
+            sw.Stop();
+
+            Debug.Log($"Reconstruction Time: {sw.ElapsedMilliseconds}");
+        }
     }
 }

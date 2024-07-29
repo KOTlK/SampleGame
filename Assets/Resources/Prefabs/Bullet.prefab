@@ -96,10 +96,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47de29790a4f9c6418d761a12f0fd14c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PrefabName: Prefabs/Bullet
   Id: 0
   Flags: 10
   Type: 3
   Em: {fileID: 0}
+  World: {fileID: 0}
   AutoBake: 0
   Speed: 10
   Size: 0.7

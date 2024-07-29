@@ -8,11 +8,11 @@ public class Projectile : Entity {
     public LayerMask Mask;
     
     private Vector3 _direction;
-    private Entity  _sender;
+    private EntityHandle  _sender;
     
     private static Collider[] CollisionBuffer = new Collider[32];
     
-    public void Shoot(Vector3 direction, Entity sender) {
+    public void Shoot(Vector3 direction, EntityHandle sender) {
         _direction = direction;
         _sender    = sender;
         Damage.sender = sender.Id;
@@ -36,7 +36,7 @@ public class Projectile : Entity {
             var coll = CollisionBuffer[i];
             
             if(coll.TryGetComponent(out Character character)) {
-                if(character != _sender) {
+                if(character.Id != _sender.Id) {
                     character.ApplyDamage(Damage);
                     Em.DestroyEntity(Id);
                     return;

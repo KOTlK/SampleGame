@@ -97,10 +97,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5e4f217307cb0e46aa9950cf65b914d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PrefabName: Prefabs/Weapon
   Id: 0
   Flags: 2
   Type: 4
   Em: {fileID: 0}
+  World: {fileID: 0}
   AutoBake: 0
   Owner: {fileID: 0}
   BulletPrefab: {fileID: 6149124908881208667, guid: add899e5380e12d4c9aa4ba1032426a4,

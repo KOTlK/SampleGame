@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class Weapon : Entity {
-    public Entity     Owner;
+    public EntityHandle Owner;
     public Projectile BulletPrefab;
     public Transform  Muzzle;
     public float      FireRate; //bullets per second;
@@ -19,15 +19,16 @@ public class Weapon : Entity {
     
     public void Shoot(Vector3 direction) {
         if(CanShoot) {
-            var bullet = (Projectile)Em.CreateEntity(
-            BulletPrefab, 
-            Muzzle.position, 
-            Quaternion.Euler(direction), 
-            BulletPrefab.transform.localScale);
-            
-            bullet.Shoot(direction, Owner);
-            CanShoot = false;
-            _timePassed = 0f;
+            var bulletHandle = Em.CreateEntity(
+                               BulletPrefab, 
+                               Muzzle.position, 
+                               Quaternion.Euler(direction), 
+                               BulletPrefab.transform.localScale);
+            if(Em.GetEntity<Projectile>(bulletHandle, out var bullet)) {
+                bullet.Shoot(direction, Owner);
+                CanShoot = false;
+                _timePassed = 0f;
+            }
         }
     }
 }

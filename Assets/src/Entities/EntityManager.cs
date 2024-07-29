@@ -14,10 +14,16 @@ public struct PackedEntity {
     public Entity        Entity;
     public EntityManager Manager;
     public EntityType    Type;
+    public uint          Tag; // Unique identifier for slot
     public bool          Alive;
 }
 
-public class EntityManager : MonoBehaviour {
+public struct EntityHandle {
+    public uint   Id;
+    public uint   Tag;
+}
+
+public class EntityManager : MonoBehaviour, ISave {
     public World             World;
     public List<Entity>      BakedEntities;
     public List<MovedEntity> MovedEntities   = new ();
@@ -28,6 +34,7 @@ public class EntityManager : MonoBehaviour {
     public uint[]            FreeEntities    = new uint[128];
     [HideInInspector] 
     public uint              MaxEntitiesCount = 1;
+    public uint              CurrentTag = 0;
     public uint              FreeEntitiesCount;
     public uint              EntitiesToRemoveCount;
 
@@ -37,6 +44,34 @@ public class EntityManager : MonoBehaviour {
 
         foreach(var type in entityTypes) {
             EntitiesByType.Add((EntityType)type, new List<uint>());
+        }
+    }
+
+    public virtual void Save(SaveFile sf) { // @Incomplete Save and Load World?
+        sf.Write(nameof(MaxEntitiesCount), MaxEntitiesCount);
+        sf.Write(nameof(CurrentTag), CurrentTag);
+        for(var i = 0; i < MaxEntitiesCount; ++i) {
+            sf.Write($"EntityNum{i}", Entities[i]);
+        }
+    }
+
+    public virtual void Load(SaveFile sf) {
+        // Clear everything
+        for(uint i = 0; i < MaxEntitiesCount; ++i) {
+            DestroyEntityImmediate(i);
+        }
+        
+        MaxEntitiesCount      = 1;
+        FreeEntitiesCount     = 0;
+        EntitiesToRemoveCount = 0;
+        MovedEntities.Clear();
+        DynamicEntities.Clear();
+
+        MaxEntitiesCount = sf.ReadUInt(nameof(MaxEntitiesCount));
+        CurrentTag       = sf.ReadUInt(nameof(CurrentTag));
+        Entities         = new PackedEntity[MaxEntitiesCount];
+        for(var i = 0; i < MaxEntitiesCount; ++i) {
+            Entities[i] = sf.ReadPackedEntity($"EntityNum{i}", this);
         }
     }
         
@@ -49,6 +84,7 @@ public class EntityManager : MonoBehaviour {
     }
     
     public void BakeEntity(Entity entity) {
+        uint tag = GetTag();
         uint id = 0;
         if(FreeEntitiesCount > 0){
             id = FreeEntities[--FreeEntitiesCount];
@@ -64,6 +100,7 @@ public class EntityManager : MonoBehaviour {
         Entities[id].Alive   = true;
         Entities[id].Type    = entity.Type;
         Entities[id].Manager = this;
+        Entities[id].Tag     = tag;
         
         entity.Id          = id;
         entity.Em          = this;
@@ -87,40 +124,40 @@ public class EntityManager : MonoBehaviour {
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Entity CreateEntity(Entity prefab, Vector3 position) {
+    public EntityHandle CreateEntity(Entity prefab, Vector3 position) {
         return CreateEntity(prefab, position, Quaternion.identity, Vector3.one, null);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T CreateEntity<T>(Entity prefab, Vector3 position)
-    where T : Entity {
-        return (T)CreateEntity(prefab, position);
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Entity CreateEntity(Entity prefab, 
+    public EntityHandle CreateEntity(Entity prefab, 
                                Vector3 position, 
                                Quaternion orientation, 
                                Vector3 scale) {
         return CreateEntity(prefab, position, orientation, scale, null);
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T CreateEntity<T>(Entity prefab, 
-                             Vector3 position, 
-                             Quaternion orientation, 
-                             Vector3 scale)
-    where T : Entity {
-        return (T)CreateEntity(prefab, position, orientation, scale);
+
+    public EntityHandle CreateEntity(string prefabPath) {
+        return CreateEntity(prefabPath, Vector3.zero, Quaternion.identity, Vector3.one, null);
+    }
+
+    public EntityHandle CreateEntity(string prefabPath,
+                               Vector3 position, 
+                               Quaternion orientation,
+                               Vector3 scale,
+                               Transform parent) {
+        var prefab = Resources.Load<Entity>(prefabPath); // @Unfinished temporary, until resource system is ready
+        Destroy(prefab);
+        return CreateEntity(prefab, position, orientation, scale, parent);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Entity CreateEntity(Entity prefab, 
-                               Vector3 position, 
-                               Quaternion orientation, 
-                               Vector3 scale, 
-                               Transform parent) {
+    public EntityHandle CreateEntity(Entity prefab, 
+                                     Vector3 position, 
+                                     Quaternion orientation, 
+                                     Vector3 scale, 
+                                     Transform parent) {
         uint id = 0;
+        uint tag = GetTag();
         
         if(FreeEntitiesCount > 0) {
             id = FreeEntities[--FreeEntitiesCount];
@@ -134,12 +171,13 @@ public class EntityManager : MonoBehaviour {
             Resize(ref Entities, MaxEntitiesCount << 1);
         }
         
-        Entities[id].Entity = obj;
-        Entities[id].Alive  = true;
-        Entities[id].Type   = obj.Type;
+        Entities[id].Entity  = obj;
+        Entities[id].Alive   = true;
+        Entities[id].Type    = obj.Type;
         Entities[id].Manager = this;
+        Entities[id].Tag     = tag;
         
-        obj.Id          = id;
+        obj.Id     = id;
         obj.Em          = this;
         obj.World       = World;
 
@@ -159,17 +197,10 @@ public class EntityManager : MonoBehaviour {
         
         obj.OnCreate();
         
-        return obj;
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T CreateEntity<T>(Entity prefab,
-                             Vector3 position,
-                             Quaternion orientation,
-                             Vector3 scale,
-                             Transform parent)
-    where T : Entity {
-        return (T)CreateEntity(prefab, position, orientation, scale, parent);
+        return new EntityHandle {
+            Id = id,
+            Tag = tag,
+        };
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -247,24 +278,44 @@ public class EntityManager : MonoBehaviour {
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (bool alive, Entity entity) GetEntity(uint id) {
-        return (Entities[id].Alive, Entities[id].Entity);
+    public bool GetEntity(EntityHandle handle, out Entity e) {
+        if(IsValid(handle)) {
+            e = Entities[handle.Id].Entity;
+            return true;
+        } else {
+            e = null;
+            return false;
+        }
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (bool alive, T entity) GetEntity<T>(uint id)
+    public bool GetEntity<T>(EntityHandle handle, out T e) 
     where T : Entity {
-        return (Entities[id].Alive, (T)Entities[id].Entity);
+        if(IsValid(handle)) {
+            e = (T)Entities[handle.Id].Entity;
+            return true;
+        } else {
+            e = null;
+            return false;
+        }
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EntityType GetType(uint id) {
-        return Entities[id].Type;
+    public EntityHandle GetHandle(uint id) {
+        return new EntityHandle {
+            Id = id,
+            Tag = Entities[id].Tag
+        };
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsAlive(uint id) {
         return Entities[id].Alive;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsValid(EntityHandle handle) {
+        return handle.Tag == Entities[handle.Id].Tag;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -284,5 +335,14 @@ public class EntityManager : MonoBehaviour {
                 yield return (T)Entities[i].Entity;
             }
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private uint GetTag() {
+        if(CurrentTag == uint.MaxValue) {
+            CurrentTag = 0;
+        }
+        
+        return CurrentTag;
     }
 }

@@ -5,6 +5,8 @@ using UnityEngine;
 using Unity.Collections;
 using System;
 
+using static Assertions;
+
 public class SaveFile {
     public struct Field {
         public string Name;
@@ -107,69 +109,185 @@ public class SaveFile {
         Debug.Log(Root.Fields.Count);
     }
 
-    public ObjectNode ParseObject(ref int startLine, ObjectNode node = default) {
-        while(true) {
-            var line = LoadedLines[startLine].TrimStart().TrimEnd();
-
-            if(string.IsNullOrEmpty(line)) {
-                startLine++;
-                continue;
-            }
-
-            if(line[0] == '}') {
-                startLine++;
-                break;
-            }
-
-            var separateLine = line.Split(Separator);
-
-            if(separateLine[1] == "{") {
-                startLine++;
-                node.PushObject(separateLine[0], ParseObject(ref startLine, ObjectNode.Create()));
-            } else {
-                node.PushField(new Field(separateLine[0], separateLine[1]));
-                startLine++;
-            }
-        }
-
-        return node;
-    }
-
-    public void SaveObject(string name, ObjectNode node) {
-        Root.PushObject(name, node);
-    }
-
     public void Write(string name, ISave save) {
         BeginObject(name);
         save.Save(this);
         EndObject();
     }
 
-    public void BeginObject(string name) {
+    public void Write(string name, PackedEntity e) {
+        BeginObject(name);
+        Write(nameof(e.Tag), e.Tag);
+        Write(nameof(e.Type), e.Type);
+        WriteBool(nameof(e.Alive), e.Alive);
+        if(e.Alive) {
+            Write(nameof(e.Entity), e.Entity);
+        }
+        EndObject();
+    }
+
+    private void Write(string name, Entity e) {
+        BeginObject(name);
+        Write(nameof(e.Id), e.Id);
+        Write(nameof(e.Type), e.Type);
+        Write(nameof(e.Flags), e.Flags);
+        Write(nameof(e.PrefabName), e.PrefabName);
+        e.Save(this);
+        EndObject();
+    }
+
+    public void Write(string name, Enum e) { // @Incomplete add all basic enum types
+        var type = Enum.GetUnderlyingType(e.GetType()).ToString();
+        Debug.Log($"Writing enum with base type: {type}");
+
+        switch(type) {
+            case "System.Int32" : {
+                Write(name, (int)Convert.ChangeType(e, typeof(int)));
+            }
+            break;
+            default : {
+                Debug.LogError($"Can't convert from {type} to any proper type");
+            }
+            break;
+        }
+    }
+
+    public T ReadEnum<T>(string name) // @Incomplete add all basic enum types
+    where T : Enum {
+        var type = typeof(T).ToString();
+
+        switch(type) {
+            case "System.Int32" : {
+                var val = ReadInt(name);
+                return (T)Convert.ChangeType(val, typeof(T));
+            }
+            break;
+        }
+
+        return default;
+    }
+
+    public PackedEntity ReadPackedEntity(string name, EntityManager em) {
+        BeginReadObject(name);
+        var ent = new PackedEntity();
+        ent.Tag = ReadUInt(nameof(ent.Tag));
+        ent.Manager = em;
+        ent.Type = ReadEnum<EntityType>(nameof(ent.Type));
+        ent.Alive = ReadBool(nameof(ent.Alive));
+        if(ent.Alive) {
+            ent.Entity = ReadEntity(nameof(ent.Entity), em);
+        }
+        EndReadObject();
+
+        return ent;
+    }
+    
+    private Entity ReadEntity(string name, EntityManager em) {
+        BeginReadObject(name);
+        Entity entity;
+        var id     = ReadUInt(nameof(entity.Id));
+        var type   = ReadEnum<EntityType>(nameof(entity.Type));
+        var flags  = ReadEnum<EntityFlags>(nameof(entity.Flags));
+        var prefab = ReadString(nameof(entity.PrefabName));
+        var entityHandle = em.CreateEntity(prefab);
+        em.GetEntity(entityHandle, out entity);
+        entity.Load(this);
+        entity.Type = type;
+        entity.Flags = flags;
+        Assert(id == entity.Id, "Entity Id's are not identical while reading entity, make sure you are saving everything right");
+        EndReadObject();
+
+        return entity;
+    }
+
+    public void ReadObject(string name, ISave obj) {
+        BeginReadObject(name);
+        obj.Load(this);
+        EndReadObject();
+    }
+
+    public T ReadValueType<T>(string name) 
+    where T : ISave {
+        var ret = default(T);
+
+        BeginReadObject(name);
+        ret.Load(this);
+        EndReadObject();
+
+        return ret;
+    }
+
+    public T[] ReadObjectArray<T>(string name, Func<T> createObjectFunc) 
+    where T : ISave {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new T[count];
+
+        for(var i = 0; i < count; ++i) {
+            var obj = createObjectFunc();
+            ReadObject($"{name}ArrayElement{i}", obj);
+            arr[i] = obj;
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public T[] ReadUnmanagedObjectArray<T>(string name) 
+    where T : unmanaged, ISave {
+        BeginReadObject(name);
+        var count = ReadInt("Count");
+        var arr   = new T[count];
+
+        for(var i = 0; i < count; ++i) {
+            arr[i] = ReadValueType<T>($"{name}ArrayElement{i}");
+        }
+
+        EndReadObject();
+
+        return arr;
+    }
+
+    public T[] ReadValueObjectArray<T>(string name) // @Untested
+    where T : struct, ISave {
+    BeginReadObject(name);
+    var count = ReadInt("Count");
+    var arr = new T[count];
+
+    for(var i = 0; i < count; ++i) {
+        arr[i] = ReadValueType<T>($"{name}ArrayElement{i}");
+    }
+    
+    EndReadObject();
+
+    return arr;
+}
+
+    public NativeArray<T> ReadNativeObjectArray<T>(string name, Allocator allocator) // @Untested
+    where T : unmanaged, ISave {
+    BeginReadObject(name);
+    var count = ReadInt("Count");
+    var arr = new NativeArray<T>(count, allocator);
+
+    for(var i = 0; i < count; ++i) {
+        arr[i] = ReadValueType<T>($"{name}ArrayElement{i}");
+    }
+    
+    EndReadObject();
+
+    return arr;
+}
+
+// Write
+#region BasicTypesWrite
+
+    public void Write(string name, string value) {
         Sb.Append(name);
         AddNameSeparator();
-        Sb.Append('{');
-        CurrentOffset += Offset;
+        Sb.Append(value);
         NextLine();
     }
-
-    public void NextLine() {
-        Sb.AppendLine();
-        Sb.Append(' ', CurrentOffset);
-    }
-
-    public void EndObject() {
-        Sb.AppendLine();
-        CurrentOffset -= Offset;
-        Sb.Append(' ', CurrentOffset);
-        Sb.Append('}');
-    }
-
-    public void AddNameSeparator() {
-        Sb.Append(Separator);
-    }
-
-#region BasicTypesWrite
 
     public void Write(string name, int value) {
         Sb.Append(name);
@@ -227,7 +345,7 @@ public class SaveFile {
         NextLine();
     }
 
-    public void Write(string name, bool value) {
+    public void WriteBool(string name, bool value) {
         Sb.Append(name);
         AddNameSeparator();
         Sb.Append(value.ToString());
@@ -298,7 +416,6 @@ public class SaveFile {
     }
 
 #endregion
-
 #region BasicArraysWrite
     public void Write<T>(string name, int itemsCount, T[] array) 
     where T : ISave {
@@ -310,7 +427,7 @@ public class SaveFile {
             NextLine();
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, int[] array) {
@@ -321,7 +438,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, uint[] array) {
@@ -332,7 +449,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, long[] array) {
@@ -343,7 +460,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, ulong[] array) {
@@ -354,7 +471,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, short[] array) {
@@ -365,7 +482,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, ushort[] array) {
@@ -376,7 +493,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, byte[] array) {
@@ -387,7 +504,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, sbyte[] array) {
@@ -398,7 +515,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, bool[] array) {
@@ -406,10 +523,10 @@ public class SaveFile {
         Write("Count", itemsCount);
         
         for(var i = 0; i < itemsCount; ++i) {
-            Write($"{name}ArrayElement{i}", array[i]);
+            WriteBool($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, float[] array) {
@@ -420,7 +537,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, double[] array) {
@@ -431,7 +548,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, Vector3[] array) {
@@ -442,7 +559,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, Vector3Int[] array) {
@@ -453,7 +570,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, Vector2[] array) {
@@ -464,7 +581,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, Vector2Int[] array) {
@@ -475,7 +592,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, Vector4[] array) {
@@ -486,7 +603,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, Quaternion[] array) {
@@ -497,7 +614,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, Matrix4x4[] array) {
@@ -508,12 +625,10 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 #endregion
-
     //@Untested Everything inside this region is generated by ChatGPT
-
 #region NativeArraysWrite
     public void Write<T>(string name, int itemsCount, NativeArray<T> array) 
     where T : struct, ISave {
@@ -525,7 +640,7 @@ public class SaveFile {
             NextLine();
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<int> array) {
@@ -536,7 +651,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<uint> array) {
@@ -547,7 +662,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<long> array) {
@@ -558,7 +673,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<ulong> array) {
@@ -569,7 +684,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<short> array) {
@@ -580,7 +695,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<ushort> array) {
@@ -591,7 +706,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<byte> array) {
@@ -602,7 +717,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<sbyte> array) {
@@ -613,7 +728,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<bool> array) {
@@ -621,10 +736,10 @@ public class SaveFile {
         Write("Count", itemsCount);
         
         for(var i = 0; i < itemsCount; ++i) {
-            Write($"{name}ArrayElement{i}", array[i]);
+            WriteBool($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<float> array) {
@@ -635,7 +750,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<double> array) {
@@ -646,7 +761,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<Vector3> array) {
@@ -657,7 +772,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<Vector3Int> array) {
@@ -668,7 +783,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<Vector2> array) {
@@ -679,7 +794,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<Vector2Int> array) {
@@ -690,7 +805,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<Vector4> array) {
@@ -701,7 +816,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<Quaternion> array) {
@@ -712,7 +827,7 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 
     public void Write(string name, int itemsCount, NativeArray<Matrix4x4> array) {
@@ -723,61 +838,20 @@ public class SaveFile {
             Write($"{name}ArrayElement{i}", array[i]);
         }
         EndObject();
-        NextLine();
+        // NextLine();
     }
 #endregion
-    
-    public ObjectNode GetCurrentNode() {
-        return ObjectStack.Peek();
-    }
-
-    public void BeginReadObject(string name) {
-        if(ObjectStack.Count == 0) {
-            ObjectStack.Push(Root);
-            var currentNode = GetCurrentNode();
-            
-            if(currentNode.NestedObjects.TryGetValue(name, out var obj)) {
-                ObjectStack.Push(obj);
-            }
-        } else {
-            var currentNode = GetCurrentNode();
-            
-            if(currentNode.NestedObjects.TryGetValue(name, out var obj)) {
-                ObjectStack.Push(obj);
-            }
-        }
-    }
-
-    public void ReadObject(string name, ISave obj) {
-        BeginReadObject(name);
-        obj.Load(this);
-        EndReadObject();
-    }
-
-    public T ReadValueType<T>(string name) 
-    where T : ISave {
-        var ret = default(T);
-
-        BeginReadObject(name);
-        ret.Load(this);
-        EndReadObject();
-
-        return ret;
-    }
-
-    public void EndReadObject() {
-        if(ObjectStack.Count == 0) {
-            ObjectStack.Push(Root);
-        } else {
-            ObjectStack.Pop();
-
-            if(ObjectStack.Count == 0) {
-                ObjectStack.Push(Root);
-            }
-        }
-    }
-
+// Read
 #region ReadBasicTypes
+    public string ReadString(string name, string defaultValue = "") {
+        foreach(var field in GetCurrentNode().Fields) {
+            if(field.Name == name) {
+                return field.Value;
+            }
+        }
+
+        return defaultValue;
+    }
 
     public int ReadInt(string name, int defaultValue = 0) {
         foreach(var field in GetCurrentNode().Fields) {
@@ -1071,39 +1145,6 @@ public class SaveFile {
     }
 
 #endregion
-
-    public T[] ReadObjectArray<T>(string name, Func<T> createObjectFunc) 
-    where T : ISave {
-        BeginReadObject(name);
-        var count = ReadInt("Count");
-        var arr   = new T[count];
-
-        for(var i = 0; i < count; ++i) {
-            var obj = createObjectFunc();
-            ReadObject($"{name}ArrayElement{i}", obj);
-            arr[i] = obj;
-        }
-
-        EndReadObject();
-
-        return arr;
-    }
-
-    public T[] ReadUnmanagedObjectArray<T>(string name) 
-    where T : unmanaged, ISave {
-        BeginReadObject(name);
-        var count = ReadInt("Count");
-        var arr   = new T[count];
-
-        for(var i = 0; i < count; ++i) {
-            arr[i] = ReadValueType<T>($"{name}ArrayElement{i}");
-        }
-
-        EndReadObject();
-
-        return arr;
-    }
-
 #region ReadBasicArrays
     public int[] ReadIntArray(string name) {
         BeginReadObject(name);
@@ -1357,22 +1398,6 @@ public class SaveFile {
         return arr;
     }
 #endregion
-
-public NativeArray<T> ReadNativeObjectArray<T>(string name, Allocator allocator) // @Untested
-where T : unmanaged, ISave {
-    BeginReadObject(name);
-    var count = ReadInt("Count");
-    var arr = new NativeArray<T>(count, allocator);
-
-    for(var i = 0; i < count; ++i) {
-        arr[i] = ReadValueType<T>($"{name}ArrayElement{i}");
-    }
-    
-    EndReadObject();
-
-    return arr;
-}
-
 // @Untested Everything inside ReadBasicNativeArrays region is generated by ChatGPT
 #region ReadBasicNativeArrays
     public NativeArray<int> ReadNativeIntArray(string name, Allocator allocator) {
@@ -1627,4 +1652,99 @@ where T : unmanaged, ISave {
         return arr;
     }
 #endregion
+
+    private ObjectNode GetCurrentNode() {
+        return ObjectStack.Peek();
+    }
+
+    private void BeginReadObject(string name) {
+        if(ObjectStack.Count == 0) {
+            ObjectStack.Push(Root);
+            var currentNode = GetCurrentNode();
+            
+            if(currentNode.NestedObjects.TryGetValue(name, out var obj)) {
+                ObjectStack.Push(obj);
+            }
+        } else {
+            var currentNode = GetCurrentNode();
+            
+            if(currentNode.NestedObjects.TryGetValue(name, out var obj)) {
+                ObjectStack.Push(obj);
+            }
+        }
+    }
+
+    
+
+    
+
+    private void EndReadObject() {
+        if(ObjectStack.Count == 0) {
+            ObjectStack.Push(Root);
+        } else {
+            ObjectStack.Pop();
+
+            if(ObjectStack.Count == 0) {
+                ObjectStack.Push(Root);
+            }
+        }
+    }
+
+    private void BeginObject(string name) {
+        Sb.Append(name);
+        AddNameSeparator();
+        Sb.Append('{');
+        CurrentOffset += Offset;
+        NextLine();
+    }
+
+    private void NextLine() {
+        Sb.AppendLine();
+        Sb.Append(' ', CurrentOffset);
+    }
+
+    private void EndObject() {
+        Sb.AppendLine();
+        CurrentOffset -= Offset;
+        Sb.Append(' ', CurrentOffset);
+        Sb.Append('}');
+        NextLine();
+    }
+
+    private void AddNameSeparator() {
+        Sb.Append(Separator);
+    }
+
+    private ObjectNode ParseObject(ref int startLine, ObjectNode node = default) {
+        while(true) {
+            var line = LoadedLines[startLine].TrimStart().TrimEnd();
+
+            if(string.IsNullOrEmpty(line)) {
+                startLine++;
+                continue;
+            }
+
+            if(line[0] == '}') {
+                startLine++;
+                break;
+            }
+
+            var separateLine = line.Split(Separator);
+
+            if(separateLine[1] == "{") {
+                startLine++;
+                node.PushObject(separateLine[0], ParseObject(ref startLine, ObjectNode.Create()));
+            } else {
+                node.PushField(new Field(separateLine[0], separateLine[1]));
+                startLine++;
+            }
+        }
+
+        return node;
+    }
+
+    private void SaveObject(string name, ObjectNode node) {
+        Root.PushObject(name, node);
+    }
+
 }
