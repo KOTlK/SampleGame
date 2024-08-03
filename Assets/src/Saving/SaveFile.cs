@@ -52,7 +52,7 @@ public class SaveFile {
     
     public void NewFile(float version) {
         Version = version;
-        Write("Version", version);
+        Write(nameof(Version), version);
         Sb.AppendLine();
     }
     
@@ -67,14 +67,14 @@ public class SaveFile {
         // File.WriteAllText(path, Sb.ToString());
     }
 
-    public void NewFromExistingFile(string path, string name) {
+    public void NewFromExistingFile(string path) {
+        Assert(path.EndsWith(Extension), $"File should ends with {Extension}");
         Root = new ObjectNode
         {
             Fields = new(),
             NestedObjects = new()
         };
 
-        path += $"/{name}{Extension}";
         if(File.Exists(path)) {
             LoadedLines = File.ReadAllLines(path);
             LinesCount = LoadedLines.Length;
@@ -83,8 +83,15 @@ public class SaveFile {
         //Parse file
         var versionLine = LoadedLines[0].TrimStart().TrimEnd();
         var nameObj = versionLine.Split(Separator);
-        if(float.TryParse(nameObj[1], out var version)) {
-            Version = version;
+        if(nameObj.Length == 2) {
+            Assert(nameObj[0] == nameof(Version), "Can't read version, make sure the file is formated right");
+            if(float.TryParse(nameObj[1], out var version)) {
+                Version = version;
+            } else {
+                Debug.LogError("Can't parse version");
+            }
+        } else {
+            Debug.LogError("Can't parse version");
         }
 
         Debug.Log(Version);
@@ -115,8 +122,9 @@ public class SaveFile {
         EndObject();
     }
 
-    public void Write(string name, PackedEntity e) {
+    public void Write(string name, PackedEntity e, uint id) {
         BeginObject(name);
+        Write("Id", id);
         Write(nameof(e.Tag), e.Tag);
         Write(nameof(e.Type), e.Type);
         WriteBool(nameof(e.Alive), e.Alive);
@@ -128,17 +136,20 @@ public class SaveFile {
 
     private void Write(string name, Entity e) {
         BeginObject(name);
+        WriteBool(nameof(e.RecreateOnLoad), e.RecreateOnLoad);
         Write(nameof(e.Id), e.Id);
         Write(nameof(e.Type), e.Type);
         Write(nameof(e.Flags), e.Flags);
         Write(nameof(e.PrefabName), e.PrefabName);
+        Write("Position", e.transform.position);
+        Write("Orientation", e.transform.rotation);
+        Write("Scale", e.transform.localScale);
         e.Save(this);
         EndObject();
     }
 
     public void Write(string name, Enum e) { // @Incomplete add all basic enum types
         var type = Enum.GetUnderlyingType(e.GetType()).ToString();
-        Debug.Log($"Writing enum with base type: {type}");
 
         switch(type) {
             case "System.Int32" : {
@@ -154,12 +165,12 @@ public class SaveFile {
 
     public T ReadEnum<T>(string name) // @Incomplete add all basic enum types
     where T : Enum {
-        var type = typeof(T).ToString();
+        var type = Enum.GetUnderlyingType(typeof(T)).ToString();
 
         switch(type) {
             case "System.Int32" : {
                 var val = ReadInt(name);
-                return (T)Convert.ChangeType(val, typeof(T));
+                return (T)Enum.ToObject(typeof(T), val);
             }
             break;
         }
@@ -170,31 +181,38 @@ public class SaveFile {
     public PackedEntity ReadPackedEntity(string name, EntityManager em) {
         BeginReadObject(name);
         var ent = new PackedEntity();
+        var id  = ReadUInt("Id");
         ent.Tag = ReadUInt(nameof(ent.Tag));
-        ent.Manager = em;
         ent.Type = ReadEnum<EntityType>(nameof(ent.Type));
         ent.Alive = ReadBool(nameof(ent.Alive));
         if(ent.Alive) {
-            ent.Entity = ReadEntity(nameof(ent.Entity), em);
+            ent.Entity = ReadEntity(nameof(ent.Entity), em, ent.Tag);
+        } else {
+            em.PushEmptyEntity(id);
         }
         EndReadObject();
 
         return ent;
     }
     
-    private Entity ReadEntity(string name, EntityManager em) {
+    private Entity ReadEntity(string name, EntityManager em, uint tag) {
         BeginReadObject(name);
-        Entity entity;
-        var id     = ReadUInt(nameof(entity.Id));
-        var type   = ReadEnum<EntityType>(nameof(entity.Type));
-        var flags  = ReadEnum<EntityFlags>(nameof(entity.Flags));
-        var prefab = ReadString(nameof(entity.PrefabName));
-        var entityHandle = em.CreateEntity(prefab);
-        em.GetEntity(entityHandle, out entity);
-        entity.Load(this);
-        entity.Type = type;
-        entity.Flags = flags;
-        Assert(id == entity.Id, "Entity Id's are not identical while reading entity, make sure you are saving everything right");
+        Entity entity = null;
+        var recreate = ReadBool(nameof(entity.RecreateOnLoad));
+
+        if(recreate) {
+            var id     = ReadUInt(nameof(entity.Id));
+            var type   = ReadEnum<EntityType>(nameof(entity.Type));
+            var flags  = ReadEnum<EntityFlags>(nameof(entity.Flags));
+            var link   = ReadValueType<ResourceLink>(nameof(entity.PrefabName));
+            var position = ReadVector3("Position");
+            var orientation = ReadQuaternion("Orientation");
+            var scale = ReadVector3("Scale");
+            entity = em.RecreateEntity(link, tag, position, orientation, scale, type, flags);
+            entity.Load(this);
+            Assert(id == entity.Id, $"Entity Id's are not identical while reading entity. Recreated Id: {entity.Id}, Saved Id: {id}");
+        }
+        
         EndReadObject();
 
         return entity;

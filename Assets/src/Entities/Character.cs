@@ -1,9 +1,19 @@
 using UnityEngine;
 
 [System.Serializable]
-public struct Damage {
+public struct Damage : ISave {
     public int  amount;
-    public uint sender;
+    public EntityHandle sender;
+
+    public void Save(SaveFile sf) {
+        sf.Write(nameof(amount), amount);
+        sf.Write(nameof(sender), sender);
+    }
+
+    public void Load(SaveFile sf) {
+        amount = sf.ReadInt(nameof(amount));
+        sender = sf.ReadValueType<EntityHandle>(nameof(sender));
+    }
 }
 
 public class Character : Entity {
@@ -13,8 +23,32 @@ public class Character : Entity {
     public CharacterController CharacterController;
 
     public bool                IsDead => Health <= 0;
-    
+
+    public override void OnCreate() {
+        base.OnCreate();
+        Input = GetComponent<CharacterInput>();
+        CharacterController = GetComponent<CharacterController>();
+    }
+
+    public override void OnBaking()
+    {
+        OnCreate();
+    }
+
+    public override void Save(SaveFile sf) {
+        base.Save(sf);
+        sf.Write(nameof(Speed), Speed);
+        sf.Write(nameof(Health), Health);
+    }
+
+    public override void Load(SaveFile sf) {
+        base.Load(sf);
+        Speed = sf.ReadFloat(nameof(Speed));
+        Health = sf.ReadInt(nameof(Health));
+    }
+
     public override void Execute() {
+        Input.Execute();
         Walk(Input.MoveDirection * Speed);
         Rotate(Quaternion.AngleAxis(Input.LookDirection, Vector3.up));
     }

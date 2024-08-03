@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Enemy : Character{
+public class Enemy : Character {
     public EntityHandle       Target;
     public Damage    Damage;
     public float     AttackRadius;
@@ -15,7 +15,7 @@ public class Enemy : Character{
     
     public override void OnCreate(){
         base.OnCreate();
-        Damage.sender = Id;
+        Damage.sender = Em.GetHandle(Id);;
     }
     
     public bool Attack(){
@@ -47,7 +47,7 @@ public class Enemy : Character{
         
         Health -= damage.amount;
         if(Health <= 0){
-            Singleton<Events>.Instance.RaiseEvent<EnemyDiedEvent>(new EnemyDiedEvent{killer = damage.sender});
+            Singleton<Events>.Instance.RaiseEvent<EnemyDiedEvent>(new EnemyDiedEvent{killer = damage.sender.Id});
             Em.DestroyEntity(Id);
         }
     }

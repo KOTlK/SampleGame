@@ -433,6 +433,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1445342089589721196, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+      propertyPath: AutoBake
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
         type: 3}
       propertyPath: Type
@@ -447,14 +452,48 @@ PrefabInstance:
         type: 3}
       propertyPath: Input
       value: 
-      objectReference: {fileID: 1350982211}
+      objectReference: {fileID: 0}
     - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
         type: 3}
       propertyPath: AutoBake
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+      propertyPath: Prefab.Path
+      value: Prefabs/Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+      propertyPath: WeaponPrefab
+      value: Prefabs/Weapon
+      objectReference: {fileID: 0}
+    - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+      propertyPath: Link.Reference
+      value: 
+      objectReference: {fileID: 610069165242291788, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+    - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+      propertyPath: PrefabName.Path
+      value: Prefabs/Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+      propertyPath: Prefab.Reference
+      value: 
+      objectReference: {fileID: 610069165242291788, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+    - target: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
+      propertyPath: PrefabName.Reference
+      value: 
+      objectReference: {fileID: 610069165242291788, guid: 929429f3374f0f14094276c4452b7cc4,
+        type: 3}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8375547753399124920, guid: 929429f3374f0f14094276c4452b7cc4, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 929429f3374f0f14094276c4452b7cc4, type: 3}
@@ -1263,7 +1302,6 @@ GameObject:
   - component: {fileID: 1350982214}
   - component: {fileID: 1350982215}
   - component: {fileID: 1350982212}
-  - component: {fileID: 1350982211}
   - component: {fileID: 1350982216}
   m_Layer: 0
   m_Name: Game
@@ -1272,23 +1310,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1350982211
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1350982210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a234136c379e00446bc3f47cc734f8e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MoveDirection: {x: 0, y: 0, z: 0}
-  LookDirection: 0
-  Shooting: 0
-  MainCamera: {fileID: 330585545}
-  Target: {fileID: 1409290253}
 --- !u!114 &1350982212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1305,521 +1326,522 @@ MonoBehaviour:
   BakedEntities: []
   Entities:
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   - Entity: {fileID: 0}
-    Manager: {fileID: 0}
     Type: 0
+    Tag: 0
     Alive: 0
   DynamicEntities: 
   RemoveQueue: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   FreeEntities: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   MaxEntitiesCount: 1
+  CurrentTag: 0
   FreeEntitiesCount: 0
   EntitiesToRemoveCount: 0
 --- !u!4 &1350982214
@@ -1853,8 +1875,11 @@ MonoBehaviour:
   KilledEnemiesText: {fileID: 1295872231}
   KilledEnemiesByPlayerText: {fileID: 419219818}
   DebugText: {fileID: 1312746727}
+  PlayerWeapon:
+    Path: Prefabs/Weapon
+    Reference: {fileID: 8204986697109479540, guid: e1ee3d6999e6f9f4db3c7ba1941ebac9,
+      type: 3}
   Player: {fileID: 1409290248}
-  PlayerInput: {fileID: 1350982211}
   EntityManager: {fileID: 1350982212}
   SpawnerTask:
     MaxBounds: {x: 9, y: 0, z: 9}
@@ -1863,8 +1888,6 @@ MonoBehaviour:
     Prefab: {fileID: 8134109855589306714, guid: dfdc2a3d7ba73234ab4d34d087a82e3a,
       type: 3}
     SpawnRate: 30
-  ProjectilePrefab: {fileID: 6149124908881208667, guid: add899e5380e12d4c9aa4ba1032426a4,
-    type: 3}
 --- !u!114 &1350982216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1930,12 +1953,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2074b86c06464544898b900a2bb0ff6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!4 &1409290253 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 960357628785829399, guid: 929429f3374f0f14094276c4452b7cc4,
-    type: 3}
-  m_PrefabInstance: {fileID: 341881045}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1572651612
 GameObject:
   m_ObjectHideFlags: 0
@@ -1952,7 +1969,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1572651614
 Transform:
   m_ObjectHideFlags: 0

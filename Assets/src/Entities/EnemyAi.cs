@@ -7,6 +7,7 @@ public class EnemyAi : CharacterInput {
         if(Singleton<Player>.Exist) {
             Enemy.Target = Enemy.Em.GetHandle(Singleton<Player>.Instance.Id);
         }
+        Enemy = GetComponent<Enemy>();
     }
     
     public override void Execute() {

@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8204986697109479540}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.844, z: -0.8}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -97,16 +97,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5e4f217307cb0e46aa9950cf65b914d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PrefabName: Prefabs/Weapon
   Id: 0
+  PrefabName:
+    Path: Prefabs/Weapon
+    Reference: {fileID: 8204986697109479540}
   Flags: 2
   Type: 4
   Em: {fileID: 0}
   World: {fileID: 0}
   AutoBake: 0
-  Owner: {fileID: 0}
-  BulletPrefab: {fileID: 6149124908881208667, guid: add899e5380e12d4c9aa4ba1032426a4,
-    type: 3}
+  RecreateOnLoad: 1
+  BulletPrefab:
+    Path: Prefabs/Bullet
+    Reference: {fileID: 7768493760992868580, guid: add899e5380e12d4c9aa4ba1032426a4,
+      type: 3}
   Muzzle: {fileID: 7785187548564230204}
   FireRate: 100
   CanShoot: 0

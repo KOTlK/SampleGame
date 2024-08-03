@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6810240627374367564}
   - component: {fileID: 1068148292071152838}
   - component: {fileID: 5027889753921157430}
+  - component: {fileID: -2788884028914357988}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -148,20 +149,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2074b86c06464544898b900a2bb0ff6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PrefabName: Prefabs/Player
   Id: 0
+  PrefabName:
+    Path: Prefabs/Player
+    Reference: {fileID: 610069165242291788}
   Flags: 10
   Type: 1
   Em: {fileID: 0}
   World: {fileID: 0}
   AutoBake: 0
+  RecreateOnLoad: 1
   Speed: 5
   Health: 100
   Input: {fileID: 0}
   CharacterController: {fileID: 1068148292071152838}
-  WeaponPrefab: {fileID: 1290555461275462560, guid: e1ee3d6999e6f9f4db3c7ba1941ebac9,
-    type: 3}
   WeaponSlot: {fileID: 5169848034639332358}
+--- !u!114 &-2788884028914357988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610069165242291788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a234136c379e00446bc3f47cc734f8e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MoveDirection: {x: 0, y: 0, z: 0}
+  LookDirection: 0
+  Shooting: 0
+  MainCamera: {fileID: 0}
+  Target: {fileID: 0}
 --- !u!1 &6544169198794877232
 GameObject:
   m_ObjectHideFlags: 0

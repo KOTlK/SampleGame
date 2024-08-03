@@ -1,8 +1,13 @@
 using UnityEngine;
 
-public class PlayerInput : CharacterInput{
+public class PlayerInput : CharacterInput {
     public Camera    MainCamera;
     public Transform Target;
+
+    private void Start() {
+        MainCamera = Camera.main;
+        Target = transform;
+    }
     
     public override void Execute(){
         if(Target == null){

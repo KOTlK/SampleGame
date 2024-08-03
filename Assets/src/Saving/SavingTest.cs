@@ -138,7 +138,7 @@ public class SavingTest : MonoBehaviour {
 
         if(Input.GetKeyDown(KeyCode.F9)) {
             sw.Restart();
-            Save.NewFromExistingFile(Application.persistentDataPath, "TestSave");
+            Save.NewFromExistingFile($"{Application.persistentDataPath}/TestSave.sav");
             sw.Stop();
 
             Debug.Log($"File Parse Time: {sw.ElapsedMilliseconds}");

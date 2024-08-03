@@ -1,7 +1,5 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
-using static Assertions;
 
 public enum GameState {
     MainMenu,
@@ -11,26 +9,32 @@ public enum GameState {
 }
 
 public class Main : MonoBehaviour {
-    public TMP_Text      KilledEnemiesText;
-    public TMP_Text      KilledEnemiesByPlayerText;
-    public TMP_Text      DebugText;
-    public Player        Player;
-    public PlayerInput   PlayerInput;
-    public EntityManager EntityManager;
-    public TaskRunner    TaskRunner;
-    public EnemySpawner  SpawnerTask;
-    public Events        Events;
-    public Projectile    ProjectilePrefab;
+    public TMP_Text       KilledEnemiesText;
+    public TMP_Text       KilledEnemiesByPlayerText;
+    public TMP_Text       DebugText;
+    public ResourceLink   PlayerWeapon;
+    public Player         Player;
+    public EntityManager  EntityManager;
+    public TaskRunner     TaskRunner;
+    public EnemySpawner   SpawnerTask;
+    public Events         Events;
+    public ResourceSystem ResourceSystem;
+    public SaveSystem SaveSystem;
+    // public Projectile     ProjectilePrefab;
     
     private GameState _state;
     
     private void Awake() {
         TaskRunner = new TaskRunner();
         Events     = new Events();
+        ResourceSystem = new ResourceSystem();
+        SaveSystem     = new SaveSystem();
         
         Singleton<EntityManager>.Create(EntityManager);
         Singleton<TaskRunner>.Create(TaskRunner);
         Singleton<Events>.Create(Events);
+        Singleton<ResourceSystem>.Create(ResourceSystem);
+        Singleton<SaveSystem>.Create(SaveSystem);
         Singleton<Player>.Create(Player);
         
         var edeh = new EnemyDiedEventHandler();
@@ -56,6 +60,7 @@ public class Main : MonoBehaviour {
             {
                 if(Input.GetKeyDown(KeyCode.Tab)) {
                     ToGameplay();
+                    Player.GiveWeapon(EntityManager.CreateEntity(PlayerWeapon, Player.WeaponSlot.position, Player.WeaponSlot.rotation));
                 }
             }
             break;
@@ -66,7 +71,26 @@ public class Main : MonoBehaviour {
                     Pause();
                     break;
                 }
-                PlayerInput.Execute();
+
+                if(Input.GetKeyDown(KeyCode.F5)) {
+                    var sf = SaveSystem.BeginSave();
+                    //Save game
+                    sf.Write(nameof(EntityManager), EntityManager);
+
+                    SaveSystem.EndSave(Application.persistentDataPath, "GameSave");
+                    break;
+                }
+
+                if(Input.GetKeyDown(KeyCode.F9)) {
+                    var sf = SaveSystem.BeginLoading($"{Application.persistentDataPath}/GameSave.sav");
+                    //load game
+
+                    sf.ReadObject(nameof(EntityManager), EntityManager);
+
+                    SaveSystem.EndLoading();
+                    break;
+                }
+
                 Events.HandleEvents<EnemyDiedEvent>();
                 EntityManager.Execute();
                 TaskRunner.RunTaskGroup(TaskGroupType.Gameplay);
@@ -92,12 +116,10 @@ public class Main : MonoBehaviour {
     
     private void ToMainMenu() {
         _state = GameState.MainMenu;
-        
     }
     
     private void ToGameplay() {
         _state = GameState.Gameplay;
-        
     }
     
     private void Pause() {

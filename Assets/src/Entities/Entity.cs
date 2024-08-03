@@ -23,12 +23,13 @@ public enum EntityType
 
 public class Entity : MonoBehaviour, ISave  {
     public uint          Id;
-    public string        PrefabName;
+    public ResourceLink  PrefabName;
     public EntityFlags   Flags;
     public EntityType    Type;
     public EntityManager Em;
     public World         World;
     public bool          AutoBake;
+    public bool          RecreateOnLoad = true;
     
     private void Awake() {
         if(AutoBake) {
@@ -38,6 +39,7 @@ public class Entity : MonoBehaviour, ISave  {
         }
     }
     
+    public virtual void OnBaking(){ }
     public virtual void OnCreate(){ }
     public virtual void Execute(){ }
     

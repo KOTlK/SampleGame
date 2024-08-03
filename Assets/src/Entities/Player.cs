@@ -1,22 +1,28 @@
 using UnityEngine;
 
 public class Player : Character {
-    public Weapon    WeaponPrefab;
     public Transform WeaponSlot;
     
     private EntityHandle _weapon;
 
-    public override void OnCreate() {
-        _weapon = Em.CreateEntity(WeaponPrefab, 
-                                          WeaponSlot.position, 
-                                          Quaternion.identity, 
-                                          Vector3.one, 
-                                          WeaponSlot);
-        if (Em.GetEntity<Weapon>(_weapon, out var e)) {
-            e.Owner = Em.GetHandle(Id);
+    public override void Save(SaveFile sf) {
+        base.Save(sf);
+        sf.Write(nameof(_weapon), _weapon);
+    }
+
+    public override void Load(SaveFile sf) {
+        base.Load(sf);
+        _weapon = sf.ReadValueType<EntityHandle>(nameof(_weapon));
+        Singleton<SaveSystem>.Instance.LoadingOver += LoadWeapon;
+    }
+
+    public void GiveWeapon(EntityHandle weapon) {
+        _weapon = weapon;
+        if(Em.GetEntity<Weapon>(weapon, out var e)) {
+            e.AttachToSlot(WeaponSlot);
         }
     }
-    
+
     public override void Execute() {
         base.Execute();
         if(Input.Shooting) {
@@ -26,5 +32,10 @@ public class Player : Character {
                                     Mathf.Cos(Input.LookDirection * Mathf.Deg2Rad)));
             }
         }
+    }
+
+    private void LoadWeapon(SaveFile sf) {
+        Singleton<SaveSystem>.Instance.LoadingOver -= LoadWeapon;
+        GiveWeapon(_weapon);
     }
 }

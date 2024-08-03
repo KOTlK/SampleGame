@@ -12,15 +12,24 @@ public struct MovedEntity {
 [Serializable]
 public struct PackedEntity {
     public Entity        Entity;
-    public EntityManager Manager;
     public EntityType    Type;
     public uint          Tag; // Unique identifier for slot
     public bool          Alive;
 }
 
-public struct EntityHandle {
-    public uint   Id;
-    public uint   Tag;
+public struct EntityHandle : ISave {
+    public uint Id;
+    public uint Tag;
+
+    public void Save(SaveFile sf) {
+        sf.Write(nameof(Id), Id);
+        sf.Write(nameof(Tag), Tag);
+    }
+
+    public void Load(SaveFile sf) {
+        Id  = sf.ReadUInt(nameof(Id));
+        Tag = sf.ReadUInt(nameof(Tag));
+    }
 }
 
 public class EntityManager : MonoBehaviour, ISave {
@@ -50,8 +59,8 @@ public class EntityManager : MonoBehaviour, ISave {
     public virtual void Save(SaveFile sf) { // @Incomplete Save and Load World?
         sf.Write(nameof(MaxEntitiesCount), MaxEntitiesCount);
         sf.Write(nameof(CurrentTag), CurrentTag);
-        for(var i = 0; i < MaxEntitiesCount; ++i) {
-            sf.Write($"EntityNum{i}", Entities[i]);
+        for(uint i = 1; i < MaxEntitiesCount; ++i) {
+            sf.Write($"EntityNum{i}", Entities[i], i);
         }
     }
 
@@ -67,10 +76,10 @@ public class EntityManager : MonoBehaviour, ISave {
         MovedEntities.Clear();
         DynamicEntities.Clear();
 
-        MaxEntitiesCount = sf.ReadUInt(nameof(MaxEntitiesCount));
-        CurrentTag       = sf.ReadUInt(nameof(CurrentTag));
-        Entities         = new PackedEntity[MaxEntitiesCount];
-        for(var i = 0; i < MaxEntitiesCount; ++i) {
+        var entitiesCount = sf.ReadUInt(nameof(MaxEntitiesCount));
+        CurrentTag        = sf.ReadUInt(nameof(CurrentTag));
+        Entities          = new PackedEntity[entitiesCount];
+        for(var i = 1; i < entitiesCount; ++i) {
             Entities[i] = sf.ReadPackedEntity($"EntityNum{i}", this);
         }
     }
@@ -99,7 +108,6 @@ public class EntityManager : MonoBehaviour, ISave {
         Entities[id].Entity  = entity;
         Entities[id].Alive   = true;
         Entities[id].Type    = entity.Type;
-        Entities[id].Manager = this;
         Entities[id].Tag     = tag;
         
         entity.Id          = id;
@@ -120,7 +128,7 @@ public class EntityManager : MonoBehaviour, ISave {
             }
         }
         
-        entity.OnCreate();
+        entity.OnBaking();
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,31 +138,51 @@ public class EntityManager : MonoBehaviour, ISave {
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EntityHandle CreateEntity(Entity prefab, 
-                               Vector3 position, 
-                               Quaternion orientation, 
-                               Vector3 scale) {
+                                     Vector3 position, 
+                                     Quaternion orientation, 
+                                     Vector3 scale) {
         return CreateEntity(prefab, position, orientation, scale, null);
     }
 
-    public EntityHandle CreateEntity(string prefabPath) {
-        return CreateEntity(prefabPath, Vector3.zero, Quaternion.identity, Vector3.one, null);
+    public EntityHandle CreateEntity(ResourceLink link,
+                                     Vector3 position, 
+                                     Quaternion orientation) {
+        var prefab = Singleton<ResourceSystem>.Instance.Load<Entity>(link);
+        var handle = CreateEntity(prefab, position, orientation, null);
+        if(GetEntity(handle, out var e)) {
+            e.transform.localScale = prefab.transform.localScale;
+        }
+        return handle;
     }
 
-    public EntityHandle CreateEntity(string prefabPath,
-                               Vector3 position, 
-                               Quaternion orientation,
-                               Vector3 scale,
-                               Transform parent) {
-        var prefab = Resources.Load<Entity>(prefabPath); // @Unfinished temporary, until resource system is ready
-        Destroy(prefab);
-        return CreateEntity(prefab, position, orientation, scale, parent);
+    public EntityHandle CreateEntity(ResourceLink link,
+                                     Vector3 position, 
+                                     Quaternion orientation,
+                                     Transform parent) {
+        var prefab = Singleton<ResourceSystem>.Instance.Load<Entity>(link);
+        var handle = CreateEntity(prefab, position, orientation, parent);
+        if(GetEntity(handle, out var e)) {
+            e.transform.localScale = prefab.transform.localScale;
+        }
+        return handle;
+    }
+
+    public EntityHandle CreateEntity(Entity prefab,
+                                     Vector3 position,
+                                     Quaternion orientation, 
+                                     Vector3 scale,
+                                     Transform parent) {
+        var handle = CreateEntity(prefab, position, orientation, parent);
+        if(GetEntity(handle, out var e)) {
+            e.transform.localScale = scale;
+        }
+        return handle;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EntityHandle CreateEntity(Entity prefab, 
                                      Vector3 position, 
                                      Quaternion orientation, 
-                                     Vector3 scale, 
                                      Transform parent) {
         uint id = 0;
         uint tag = GetTag();
@@ -174,7 +202,6 @@ public class EntityManager : MonoBehaviour, ISave {
         Entities[id].Entity  = obj;
         Entities[id].Alive   = true;
         Entities[id].Type    = obj.Type;
-        Entities[id].Manager = this;
         Entities[id].Tag     = tag;
         
         obj.Id     = id;
@@ -201,6 +228,59 @@ public class EntityManager : MonoBehaviour, ISave {
             Id = id,
             Tag = tag,
         };
+    }
+
+    public void PushEmptyEntity(uint id) {
+        FreeEntities[FreeEntitiesCount++] = id;
+        Entities[id].Alive   = false;
+        MaxEntitiesCount++;
+    }
+
+    public Entity RecreateEntity(ResourceLink link, 
+                                 uint        tag, 
+                                 Vector3     position, 
+                                 Quaternion  orientation,
+                                 Vector3     scale,
+                                 EntityType  type,
+                                 EntityFlags flags) {
+        var resource = Singleton<ResourceSystem>.Instance.Load<Entity>(link);
+        var e        = Instantiate(resource, position, orientation);
+        e.transform.localScale = scale;
+
+        uint id = MaxEntitiesCount++;
+        
+        if(MaxEntitiesCount == Entities.Length) {
+            Resize(ref Entities, MaxEntitiesCount << 1);
+        }
+        
+        Entities[id].Entity  = e;
+        Entities[id].Alive   = true;
+        Entities[id].Type    = type;
+        Entities[id].Tag     = tag;
+        
+        e.Id    = id;
+        e.Em    = this;
+        e.World = World;
+        e.Type  = type;
+        e.Flags = flags;
+
+        EntitiesByType[e.Type].Add(id);
+        
+        if((e.Flags & EntityFlags.Dynamic) == EntityFlags.Dynamic) {
+            DynamicEntities.Add(id);
+        }
+
+        if((e.Flags & EntityFlags.InsideHashTable) == EntityFlags.InsideHashTable) {
+            if((e.Flags & EntityFlags.Dynamic) == EntityFlags.Dynamic) {
+                World.AddDynamicEntity(id, position);
+            } else if ((e.Flags & EntityFlags.Static) == EntityFlags.Static) {
+                World.AddStaticEntity(id, position);
+            }
+        }
+        
+        e.OnCreate();
+        
+        return e;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
