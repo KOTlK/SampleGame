@@ -18,7 +18,7 @@ public struct ResourceLink : ISave {
     }
 
     public void Load(SaveFile sf) {
-        Path = sf.ReadString(nameof(Path));
+        Path = sf.Read<string>(nameof(Path));
     }
 }
 

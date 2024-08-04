@@ -24,21 +24,21 @@ public class Projectile : Entity {
         sf.Write(nameof(Speed), Speed);
         sf.Write(nameof(Size), Size);
         sf.Write(nameof(TimeToLive), TimeToLive);
-        sf.Write(nameof(Damage), Damage);
+        sf.WriteObject(nameof(Damage), Damage);
         sf.Write(nameof(Mask), Mask.value);
         sf.Write(nameof(_direction), _direction);
-        sf.Write(nameof(_sender), _sender);
+        sf.WriteObject(nameof(_sender), _sender);
     }
 
     public override void Load(SaveFile sf)
     {
         base.Load(sf);
-        Speed = sf.ReadFloat(nameof(Speed), Speed);
-        Size = sf.ReadFloat(nameof(Size), Size);
-        TimeToLive = sf.ReadFloat(nameof(TimeToLive), TimeToLive);
+        Speed = sf.Read(nameof(Speed), Speed);
+        Size = sf.Read(nameof(Size), Size);
+        TimeToLive = sf.Read(nameof(TimeToLive), TimeToLive);
         Damage = sf.ReadValueType<Damage>(nameof(Damage));
-        Mask.value = sf.ReadInt(nameof(Mask), Mask.value);
-        _direction = sf.ReadVector3(nameof(_direction), _direction);
+        Mask.value = sf.Read(nameof(Mask), Mask.value);
+        _direction = sf.Read(nameof(_direction), _direction);
         _sender = sf.ReadValueType<EntityHandle>(nameof(_sender));
     }
 

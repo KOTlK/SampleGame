@@ -27,8 +27,8 @@ public struct EntityHandle : ISave {
     }
 
     public void Load(SaveFile sf) {
-        Id  = sf.ReadUInt(nameof(Id));
-        Tag = sf.ReadUInt(nameof(Tag));
+        Id  = sf.Read<uint>(nameof(Id));
+        Tag = sf.Read<uint>(nameof(Tag));
     }
 }
 
@@ -60,7 +60,7 @@ public class EntityManager : MonoBehaviour, ISave {
         sf.Write(nameof(MaxEntitiesCount), MaxEntitiesCount);
         sf.Write(nameof(CurrentTag), CurrentTag);
         for(uint i = 1; i < MaxEntitiesCount; ++i) {
-            sf.Write($"EntityNum{i}", Entities[i], i);
+            sf.WritePackedEntity($"EntityNum{i}", Entities[i], i);
         }
     }
 
@@ -76,8 +76,8 @@ public class EntityManager : MonoBehaviour, ISave {
         MovedEntities.Clear();
         DynamicEntities.Clear();
 
-        var entitiesCount = sf.ReadUInt(nameof(MaxEntitiesCount));
-        CurrentTag        = sf.ReadUInt(nameof(CurrentTag));
+        var entitiesCount = sf.Read<uint>(nameof(MaxEntitiesCount));
+        CurrentTag        = sf.Read<uint>(nameof(CurrentTag));
         Entities          = new PackedEntity[entitiesCount];
         for(var i = 1; i < entitiesCount; ++i) {
             Entities[i] = sf.ReadPackedEntity($"EntityNum{i}", this);
@@ -423,6 +423,6 @@ public class EntityManager : MonoBehaviour, ISave {
             CurrentTag = 0;
         }
         
-        return CurrentTag;
+        return CurrentTag++;
     }
 }

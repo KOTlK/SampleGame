@@ -11,18 +11,18 @@ public class Weapon : Entity {
 
     public override void Save(SaveFile sf) {
         base.Save(sf);
-        sf.Write(nameof(BulletPrefab), BulletPrefab);
+        sf.WriteObject(nameof(BulletPrefab), BulletPrefab);
         sf.Write(nameof(FireRate), FireRate);
-        sf.WriteBool(nameof(CanShoot), CanShoot);
+        sf.Write(nameof(CanShoot), CanShoot);
         sf.Write(nameof(_timePassed), _timePassed);
     }
 
     public override void Load(SaveFile sf) {
         base.Load(sf);
         BulletPrefab = sf.ReadValueType<ResourceLink>(nameof(BulletPrefab));
-        FireRate = sf.ReadFloat(nameof(FireRate));
-        CanShoot = sf.ReadBool(nameof(CanShoot));
-        _timePassed = sf.ReadFloat(nameof(_timePassed));
+        FireRate = sf.Read<float>(nameof(FireRate));
+        CanShoot = sf.Read<bool>(nameof(CanShoot));
+        _timePassed = sf.Read<float>(nameof(_timePassed));
     }
 
     public void AttachToSlot(Transform t) {

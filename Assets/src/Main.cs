@@ -75,7 +75,7 @@ public class Main : MonoBehaviour {
                 if(Input.GetKeyDown(KeyCode.F5)) {
                     var sf = SaveSystem.BeginSave();
                     //Save game
-                    sf.Write(nameof(EntityManager), EntityManager);
+                    sf.WriteObject(nameof(EntityManager), EntityManager);
 
                     SaveSystem.EndSave(Application.persistentDataPath, "GameSave");
                     break;

@@ -29,7 +29,6 @@ public class Entity : MonoBehaviour, ISave  {
     public EntityManager Em;
     public World         World;
     public bool          AutoBake;
-    public bool          RecreateOnLoad = true;
     
     private void Awake() {
         if(AutoBake) {

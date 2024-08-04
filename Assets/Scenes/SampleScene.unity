@@ -2095,7 +2095,7 @@ MonoBehaviour:
   Vector3Int: {x: 3, y: 4, z: 5}
   Vector2: {x: 2, y: 3}
   Vector2Int: {x: 5, y: 6}
-  Vector4: {x: 3, y: 45, z: 5, w: 0}
+  Vector4: {x: 3, y: 45, z: 5, w: 10}
   Quaternion: {x: 0.0017457088, y: 0.00043480855, z: 0.0008719015, w: 0.999998}
   Matrix:
     e00: 1
