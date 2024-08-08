@@ -5,12 +5,12 @@ public class Player : Character {
     
     private EntityHandle _weapon;
 
-    public override void Save(SaveFile sf) {
+    public override void Save(ISaveFile sf) {
         base.Save(sf);
         sf.WriteObject(nameof(_weapon), _weapon);
     }
 
-    public override void Load(SaveFile sf) {
+    public override void Load(ISaveFile sf) {
         base.Load(sf);
         _weapon = sf.ReadValueType<EntityHandle>(nameof(_weapon));
         Singleton<SaveSystem>.Instance.LoadingOver += LoadWeapon;
@@ -34,7 +34,7 @@ public class Player : Character {
         }
     }
 
-    private void LoadWeapon(SaveFile sf) {
+    private void LoadWeapon(ISaveFile sf) {
         Singleton<SaveSystem>.Instance.LoadingOver -= LoadWeapon;
         GiveWeapon(_weapon);
     }

@@ -5,12 +5,12 @@ public struct Damage : ISave {
     public int  amount;
     public EntityHandle sender;
 
-    public void Save(SaveFile sf) {
+    public void Save(ISaveFile sf) {
         sf.Write(nameof(amount), amount);
         sf.WriteObject(nameof(sender), sender);
     }
 
-    public void Load(SaveFile sf) {
+    public void Load(ISaveFile sf) {
         amount = sf.Read<int>(nameof(amount));
         sender = sf.ReadValueType<EntityHandle>(nameof(sender));
     }
@@ -35,13 +35,13 @@ public class Character : Entity {
         OnCreate();
     }
 
-    public override void Save(SaveFile sf) {
+    public override void Save(ISaveFile sf) {
         base.Save(sf);
         sf.Write(nameof(Speed), Speed);
         sf.Write(nameof(Health), Health);
     }
 
-    public override void Load(SaveFile sf) {
+    public override void Load(ISaveFile sf) {
         base.Load(sf);
         Speed = sf.Read<float>(nameof(Speed));
         Health = sf.Read<int>(nameof(Health));

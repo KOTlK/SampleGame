@@ -20,7 +20,6 @@ public class Main : MonoBehaviour {
     public Events         Events;
     public ResourceSystem ResourceSystem;
     public SaveSystem SaveSystem;
-    // public Projectile     ProjectilePrefab;
     
     private GameState _state;
     
@@ -50,6 +49,7 @@ public class Main : MonoBehaviour {
     
     private void OnDestroy() {
         Events.Dispose();
+        SaveSystem.Dispose();
     }
     
     private void Update() {

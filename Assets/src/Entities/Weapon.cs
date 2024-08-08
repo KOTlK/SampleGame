@@ -9,7 +9,7 @@ public class Weapon : Entity {
     
     private float _timePassed;
 
-    public override void Save(SaveFile sf) {
+    public override void Save(ISaveFile sf) {
         base.Save(sf);
         sf.WriteObject(nameof(BulletPrefab), BulletPrefab);
         sf.Write(nameof(FireRate), FireRate);
@@ -17,7 +17,7 @@ public class Weapon : Entity {
         sf.Write(nameof(_timePassed), _timePassed);
     }
 
-    public override void Load(SaveFile sf) {
+    public override void Load(ISaveFile sf) {
         base.Load(sf);
         BulletPrefab = sf.ReadValueType<ResourceLink>(nameof(BulletPrefab));
         FireRate = sf.Read<float>(nameof(FireRate));

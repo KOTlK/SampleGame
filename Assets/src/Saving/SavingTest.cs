@@ -9,13 +9,13 @@ public struct SavingObject : ISave {
     public float Value2;
     public NestedObject NestedObject;
 
-    public void Save(SaveFile file) {
+    public void Save(ISaveFile file) {
         file.Write(nameof(Value), Value);
         file.Write(nameof(Value2), Value2);
         file.WriteObject(nameof(NestedObject), NestedObject);
     }
 
-    public void Load(SaveFile file) {
+    public void Load(ISaveFile file) {
         Value = file.Read<int>(nameof(Value));
         // Debug.Log(Value);
         Value2 = file.Read<float>(nameof(Value2));
@@ -30,13 +30,13 @@ public struct NestedObject : ISave {
     public int Value2;
     public NestedDefaultObject Value3;
 
-    public void Save(SaveFile sf) {
+    public void Save(ISaveFile sf) {
         sf.Write(nameof(Value1), Value1);
         sf.Write(nameof(Value2), Value2);
         sf.WriteObject(nameof(Value3), Value3);
     }
 
-    public void Load(SaveFile sf) {
+    public void Load(ISaveFile sf) {
         Value1 = sf.Read<float>(nameof(Value1));
         // Debug.Log(Value1);
         Value2 = sf.Read<int>(nameof(Value2));
@@ -55,12 +55,12 @@ public struct NestedDefaultObject : ISave {
         Val2 = 340
     };
 
-    public void Save(SaveFile sf) {
+    public void Save(ISaveFile sf) {
         sf.Write(nameof(Val1), Val1);
         sf.Write(nameof(Val2), Val2);
     }
 
-    public void Load(SaveFile sf) {
+    public void Load(ISaveFile sf) {
         Val1 = sf.Read(nameof(Val1), Default.Val1);
         // Debug.Log(Val1);
         Val2 = sf.Read(nameof(Val2), Default.Val2);
@@ -96,6 +96,11 @@ public class SavingTest : MonoBehaviour {
 
     private void Start() {
         Save = new SaveFile();
+    }
+
+    private void OnDestroy() {
+        NativeInts.Dispose();
+        NativeObjects.Dispose();
     }
 
     private void Update() {
@@ -145,6 +150,8 @@ public class SavingTest : MonoBehaviour {
 
             sw.Restart();
             Objects    = Save.ReadValueObjectArray<SavingObject>(nameof(Objects));
+            NativeInts.Dispose();
+            NativeObjects.Dispose();
             NativeObjects = Save.ReadNativeObjectArray<SavingObject>(nameof(Objects), Allocator.Persistent);
             NativeInts = Save.ReadNativeArray<int>(nameof(Ints), Allocator.Persistent);
             Floats     = Save.ReadArray<float>(nameof(Floats));
