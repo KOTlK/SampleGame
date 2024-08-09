@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: 0
-  PrefabName:
+  Prefab:
     Path: Prefabs/Weapon
     Reference: {fileID: 8204986697109479540}
   Flags: 2
@@ -106,7 +106,6 @@ MonoBehaviour:
   Em: {fileID: 0}
   World: {fileID: 0}
   AutoBake: 0
-  RecreateOnLoad: 1
   BulletPrefab:
     Path: Prefabs/Bullet
     Reference: {fileID: 7768493760992868580, guid: add899e5380e12d4c9aa4ba1032426a4,

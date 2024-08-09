@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: 0
-  PrefabName:
+  Prefab:
     Path: Prefabs/Bullet
     Reference: {fileID: 7768493760992868580}
   Flags: 10
@@ -105,13 +105,11 @@ MonoBehaviour:
   Em: {fileID: 0}
   World: {fileID: 0}
   AutoBake: 0
-  RecreateOnLoad: 1
   Speed: 10
   Size: 0.7
   TimeToLive: 1
   Damage:
     amount: 10
-    sender: 0
   Mask:
     serializedVersion: 2
     m_Bits: 64

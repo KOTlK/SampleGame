@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: 0
-  PrefabName:
+  Prefab:
     Path: Prefabs/Player
     Reference: {fileID: 610069165242291788}
   Flags: 10
@@ -158,7 +158,6 @@ MonoBehaviour:
   Em: {fileID: 0}
   World: {fileID: 0}
   AutoBake: 0
-  RecreateOnLoad: 1
   Speed: 5
   Health: 100
   Input: {fileID: 0}

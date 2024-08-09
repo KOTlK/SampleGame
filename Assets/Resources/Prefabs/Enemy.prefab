@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: 0
-  PrefabName:
+  Prefab:
     Path: Prefabs/Enemy
     Reference: {fileID: 1544018800556653815}
   Flags: 10
@@ -129,14 +129,12 @@ MonoBehaviour:
   Em: {fileID: 0}
   World: {fileID: 0}
   AutoBake: 0
-  RecreateOnLoad: 1
   Speed: 2.5
   Health: 20
   Input: {fileID: 8482662292893231139}
   CharacterController: {fileID: 2077303974081807471}
   Damage:
     amount: 10
-    sender: 0
   AttackRadius: 1.5
   TargetsLayer:
     serializedVersion: 2
