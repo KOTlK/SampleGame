@@ -1,5 +1,8 @@
 using UnityEngine;
 using TMPro;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public enum GameState {
     MainMenu,
@@ -130,5 +133,14 @@ public class Main : MonoBehaviour {
     private void EndGame() {
         _state = GameState.GameEnd;
         
+    }
+
+    [ConsoleCommand("quit")]
+    public static void Quit() {
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
+        Application.Quit();
+#endif
     }
 }

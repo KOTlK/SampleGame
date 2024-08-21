@@ -41348,6 +41348,7 @@ GameObject:
   - component: {fileID: 1350982215}
   - component: {fileID: 1350982212}
   - component: {fileID: 1350982216}
+  - component: {fileID: 1350982217}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -41986,6 +41987,167 @@ MonoBehaviour:
   CurrentEnumEntity: {fileID: 0}
   EnumDrawHeight: 0
   EnumDrawnThisFrame: 0
+--- !u!114 &1350982217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350982210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f24a15396d2408e4d9b7da6809f3f768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OpenKey: 96
+  Submit: 13
+  OpenSpeed: 2
+  ConsoleHeight: 0.5
+  InputHeight: 0.05
+  HistoryLineHeight: 0.05
+  LineOffsetFromInput: 0.01
+  Active: 0
+  InputActive: 1
+  OpenProgress: 0
+  InputText: 
+  InputStack:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  InputStackCount: 0
+  StartLineToDraw: 0
+  SelectedEntity: 0
+  InputRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0
+    height: 0
 --- !u!114 &1409290248 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5027889753921157430, guid: 929429f3374f0f14094276c4452b7cc4,
