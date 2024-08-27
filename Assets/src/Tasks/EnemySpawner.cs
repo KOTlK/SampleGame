@@ -1,8 +1,7 @@
 using UnityEngine;
-using System.Collections;
 
 [System.Serializable]
-public class EnemySpawner : Task {
+public class EnemySpawner {
     public Vector3 MaxBounds;
     public Vector3 MinBounds;
     public Vector3 WorldCenter = Vector3.zero;
@@ -11,7 +10,7 @@ public class EnemySpawner : Task {
     
     private float _delay;
     
-    public override bool Update() {
+    public bool Update() {
         var em = Singleton<EntityManager>.Instance;
         
         _delay += Time.deltaTime;

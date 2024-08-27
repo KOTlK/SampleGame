@@ -47,7 +47,7 @@ public class Main : MonoBehaviour {
     private void Start() {
         EntityManager.BakeEntities();
         ToMainMenu();
-        TaskRunner.StartTask(TaskGroupType.Gameplay, SpawnerTask);
+        TaskRunner.StartTask(TaskGroupType.Gameplay, SpawnerTask.Update);
     }
     
     private void OnDestroy() {
