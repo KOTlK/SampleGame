@@ -18,8 +18,7 @@ public class Projectile : Entity {
         Damage.sender = sender;
     }
 
-    public override void Save(ISaveFile sf)
-    {
+    public override void Save(ISaveFile sf) {
         base.Save(sf);
         sf.Write(Speed, nameof(Speed));
         sf.Write(Size, nameof(Size));
@@ -30,8 +29,7 @@ public class Projectile : Entity {
         sf.WriteObject(_sender, nameof(_sender));
     }
 
-    public override void Load(ISaveFile sf)
-    {
+    public override void Load(ISaveFile sf) {
         base.Load(sf);
         Speed = sf.Read(nameof(Speed), Speed);
         Size = sf.Read(nameof(Size), Size);

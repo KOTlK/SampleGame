@@ -53,7 +53,8 @@ public class SavingPerformanceTest : MonoBehaviour {
 
         Sw.Stop();
 
-        Debug.Log($"Writing time: {Sw.ElapsedMilliseconds}"); // 249ms / 235ms
+        // All tests are made with 10000 objects: Text file / Binary
+        Debug.Log($"Writing time: {Sw.ElapsedMilliseconds}"); // 249ms / 80ms
 
         Sw.Restart();
 
@@ -61,7 +62,7 @@ public class SavingPerformanceTest : MonoBehaviour {
 
         Sw.Stop();
 
-        Debug.Log($"Writing to file time: {Sw.ElapsedMilliseconds}"); // 18ms / 11ms
+        Debug.Log($"Writing to file time: {Sw.ElapsedMilliseconds}"); // 18ms / 1ms
 
         Sw.Restart();
 
@@ -69,7 +70,7 @@ public class SavingPerformanceTest : MonoBehaviour {
 
         Sw.Stop();
 
-        Debug.Log($"Reading from file time: {Sw.ElapsedMilliseconds}"); // 208ms / 69ms
+        Debug.Log($"Reading from file time: {Sw.ElapsedMilliseconds}"); // 208ms / 0ms
 
         Sw.Restart();
 
@@ -77,6 +78,6 @@ public class SavingPerformanceTest : MonoBehaviour {
 
         Sw.Stop();
 
-        Debug.Log($"Recreation time: {Sw.ElapsedMilliseconds}"); // 310ms / 322ms
+        Debug.Log($"Recreation time: {Sw.ElapsedMilliseconds}"); // 310ms / 60ms
     }
 }

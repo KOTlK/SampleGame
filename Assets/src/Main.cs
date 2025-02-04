@@ -30,7 +30,8 @@ public class Main : MonoBehaviour {
         TaskRunner = new TaskRunner();
         Events     = new Events();
         ResourceSystem = new ResourceSystem();
-        SaveSystem     = new SaveSystem(SaveSystem.SaveType.Text);
+        SaveSystem     = new SaveSystem(SaveSystem.SaveType.Binary);
+        TypeVersion.Init();
         
         Singleton<EntityManager>.Create(EntityManager);
         Singleton<TaskRunner>.Create(TaskRunner);
