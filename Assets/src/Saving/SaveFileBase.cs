@@ -33,7 +33,6 @@ public abstract class SaveFileBase : ISaveFile, IDisposable {
         if(File.Exists(path)) {
             LoadFile(path);
             Version = Read<uint>(nameof(Version));
-            Debug.Log(Version);
         } else {
             Debug.LogError($"File at: {path} does not exist");
         }

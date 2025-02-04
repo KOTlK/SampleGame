@@ -42177,7 +42177,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1572651614
 Transform:
   m_ObjectHideFlags: 0
@@ -42329,8 +42329,8 @@ MonoBehaviour:
   ULong: 273568975
   Short: -3455
   UShort: 3455
-  Byte: 0
-  SByte: -120
+  Byte: 32
+  SByte: -56
   Bool: 1
 --- !u!1 &2007050184
 GameObject:

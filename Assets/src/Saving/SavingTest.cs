@@ -120,7 +120,7 @@ public class SavingTest : MonoBehaviour {
             // Save.Write(new Vector3Int(1, 2, 3));
             // Save.Write(new Vector2Int(3, 4));
             // Save.Write(new Vector2(3, 4));
-            // Save.Write(new Vector3(5, 6, 0));
+            // Save.Write(new Vector3(5, 6, 32));
             // Save.Write(new Vector4(5, 6, 7, 8));
             // Save.Write("Hello World!");
             // Save.Write("Привет Мир!");
@@ -128,6 +128,15 @@ public class SavingTest : MonoBehaviour {
             // // Save.WriteObject(Em);
             // Save.Write(Quaternion.Euler(45, 34, 22));
             // Save.Write(Quaternion.Euler(22.2f, 33.8f, 2.2f));
+            // Save.Write(22.33f);
+            // Save.Write(42.23f);
+            // Save.Write(4222.234343d);
+            // Save.Write(12332.422123d);
+            // Save.Write(new Matrix4x4(new Vector4(1, 2, 3, 4), 
+            //                          new Vector4(5, 6, 7, 8),
+            //                          new Vector4(9, 10, 11, 12),
+            //                          new Vector4(13, 14, 15, 16)));
+            // Save.Write(33356);
 
             Save.WriteObjectArray(Objects.Length, Objects, nameof(Objects));
             Save.WriteArray(Floats.Length, Floats, nameof(Floats));
@@ -197,6 +206,12 @@ public class SavingTest : MonoBehaviour {
             // // Save.ReadObject(Em);
             // var r = Save.Read<Quaternion>();
             // var s = Save.Read<Quaternion>();
+            // var t = Save.Read<float>();
+            // var u = Save.Read<float>();
+            // var v = Save.Read<double>();
+            // var w = Save.Read<double>();
+            // var x = Save.Read<Matrix4x4>();
+            // var y = Save.Read<int>();
             // Debug.Log(a);
             // Debug.Log(b);
             // Debug.Log(c);
@@ -215,6 +230,15 @@ public class SavingTest : MonoBehaviour {
             // Debug.Log(p);
             // Debug.Log(r.eulerAngles);
             // Debug.Log(s.eulerAngles);
+            // Debug.Log(t);
+            // Debug.Log(u);
+            // Debug.Log(v);
+            // Debug.Log(w);
+
+            // for(var ii = 0; ii < 4; ++ii) {
+            //     Debug.Log(x.GetColumn(ii));
+            // }
+            // Debug.Log(y);
 
             Objects    = Save.ReadValueObjectArray<SavingObject>(nameof(Objects));
             Floats     = Save.ReadArray<float>(nameof(Floats));
