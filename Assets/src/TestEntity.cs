@@ -19,7 +19,7 @@ public class TestEntity : Entity {
                 y = -1;
             }
 
-            Move(new Vector3(x, y, z) * (Time.deltaTime * Speed));
+            MoveEntity(new Vector3(x, y, z) * (Time.deltaTime * Speed));
 
             var nearbyEntitiesCount = QueryNearbyEntities(SearchRadius, _queriedEntities);
             for(var i = 0; i < nearbyEntitiesCount; ++i) {

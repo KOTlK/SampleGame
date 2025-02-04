@@ -11,10 +11,10 @@ public class Weapon : Entity {
 
     public override void Save(ISaveFile sf) {
         base.Save(sf);
-        sf.WriteObject(nameof(BulletPrefab), BulletPrefab);
-        sf.Write(nameof(FireRate), FireRate);
-        sf.Write(nameof(CanShoot), CanShoot);
-        sf.Write(nameof(_timePassed), _timePassed);
+        sf.WriteObject(BulletPrefab, nameof(BulletPrefab));
+        sf.Write(FireRate, nameof(FireRate));
+        sf.Write(CanShoot, nameof(CanShoot));
+        sf.Write(_timePassed, nameof(_timePassed));
     }
 
     public override void Load(ISaveFile sf) {

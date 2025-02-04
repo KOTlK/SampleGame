@@ -7,7 +7,7 @@ public class Player : Character {
 
     public override void Save(ISaveFile sf) {
         base.Save(sf);
-        sf.WriteObject(nameof(_weapon), _weapon);
+        sf.WriteObject(_weapon, nameof(_weapon));
     }
 
     public override void Load(ISaveFile sf) {

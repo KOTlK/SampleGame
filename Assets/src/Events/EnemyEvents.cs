@@ -26,7 +26,7 @@ public class EnemyDiedEventHandler : IDisposable {
             
             KilledEnemies++;
             
-            if(evnt.killer == player.Id){
+            if(evnt.killer == player.Handle.Id){
                 EnemiesKilledByPlayer++;
             }
         }

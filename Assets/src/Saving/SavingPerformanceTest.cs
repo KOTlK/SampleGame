@@ -19,10 +19,10 @@ public struct ObjectToSave : ISave {
     }
 
     public void Save(ISaveFile sf) {
-        sf.Write(nameof(Int), Int);
-        sf.Write(nameof(Float), Float);
-        sf.Write(nameof(Double), Double);
-        sf.Write(nameof(Vector), Vector);
+        sf.Write(Int, nameof(Int));
+        sf.Write(Float, nameof(Float));
+        sf.Write(Double, nameof(Double));
+        sf.Write(Vector, nameof(Vector));
     }
 
     public void Load(ISaveFile sf) {
@@ -40,8 +40,8 @@ public class SavingPerformanceTest : MonoBehaviour {
     public Stopwatch Sw = new();
 
     public void Start() {
-        Sf = new ObfuscatedSaveFile();
-        Sf.NewFile(1f);
+        Sf = new BinarySaveFile();
+        Sf.NewFile(1);
 
         for(var i = 0; i < ObjectsToSave.Length; ++i) {
             ObjectsToSave[i] = ObjectToSave.RandomObject();
@@ -49,7 +49,7 @@ public class SavingPerformanceTest : MonoBehaviour {
 
         Sw.Start();
 
-        Sf.WriteObjectArray(nameof(ObjectsToSave), ObjectsToSave.Length, ObjectsToSave);
+        Sf.WriteObjectArray(ObjectsToSave.Length, ObjectsToSave, nameof(ObjectsToSave));
 
         Sw.Stop();
 

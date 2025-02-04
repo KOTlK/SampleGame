@@ -15,7 +15,7 @@ public class Enemy : Character {
     
     public override void OnCreate(){
         base.OnCreate();
-        Damage.sender = Em.GetHandle(Id);;
+        Damage.sender = Handle;
     }
     
     public bool Attack(){
@@ -48,7 +48,7 @@ public class Enemy : Character {
         Health -= damage.amount;
         if(Health <= 0){
             Singleton<Events>.Instance.RaiseEvent<EnemyDiedEvent>(new EnemyDiedEvent{killer = damage.sender.Id});
-            Em.DestroyEntity(Id);
+            Em.DestroyEntity(Handle);
         }
     }
 }

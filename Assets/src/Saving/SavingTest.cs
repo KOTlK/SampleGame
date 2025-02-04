@@ -10,9 +10,9 @@ public struct SavingObject : ISave {
     public NestedObject NestedObject;
 
     public void Save(ISaveFile file) {
-        file.Write(nameof(Value), Value);
-        file.Write(nameof(Value2), Value2);
-        file.WriteObject(nameof(NestedObject), NestedObject);
+        file.Write(Value, nameof(Value));
+        file.Write(Value2, nameof(Value2));
+        file.WriteObject(NestedObject, nameof(NestedObject));
     }
 
     public void Load(ISaveFile file) {
@@ -31,9 +31,9 @@ public struct NestedObject : ISave {
     public NestedDefaultObject Value3;
 
     public void Save(ISaveFile sf) {
-        sf.Write(nameof(Value1), Value1);
-        sf.Write(nameof(Value2), Value2);
-        sf.WriteObject(nameof(Value3), Value3);
+        sf.Write(Value1, nameof(Value1));
+        sf.Write(Value2, nameof(Value2));
+        sf.WriteObject(Value3, nameof(Value3));
     }
 
     public void Load(ISaveFile sf) {
@@ -56,8 +56,8 @@ public struct NestedDefaultObject : ISave {
     };
 
     public void Save(ISaveFile sf) {
-        sf.Write(nameof(Val1), Val1);
-        sf.Write(nameof(Val2), Val2);
+        sf.Write(Val1, nameof(Val1));
+        sf.Write(Val2, nameof(Val2));
     }
 
     public void Load(ISaveFile sf) {
@@ -70,7 +70,7 @@ public struct NestedDefaultObject : ISave {
 
 public class SavingTest : MonoBehaviour {
     public EntityManager Em;
-    public SaveFile Save;
+    public ISaveFile Save;
     public SavingObject[] Objects = new SavingObject[10000];
     public NativeArray<int> NativeInts = new NativeArray<int>(10, Allocator.Persistent);
     public NativeArray<SavingObject> NativeObjects = new NativeArray<SavingObject>(10, Allocator.Persistent);
@@ -94,8 +94,8 @@ public class SavingTest : MonoBehaviour {
     public sbyte  SByte;
     public bool   Bool;
 
-    private void Start() {
-        Save = new SaveFile();
+    private unsafe void Start() {
+        Save = new BinarySaveFile();
     }
 
     private void OnDestroy() {
@@ -108,28 +108,48 @@ public class SavingTest : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.F5)) {
             sw.Start();
-            Save.NewFile(0.01f);
-            Save.WriteObjectArray(nameof(Objects), Objects.Length, Objects);
-            Save.WriteArray(nameof(Floats), Floats.Length, Floats);
-            Save.WriteArray(nameof(Ints), Ints.Length, Ints);
-            Save.WriteObject(nameof(Em), Em);
-            Save.Write(nameof(Vector3), Vector3);
-            Save.Write(nameof(Vector3Int), Vector3Int);
-            Save.Write(nameof(Vector2), Vector2);
-            Save.Write(nameof(Vector2Int), Vector2Int);
-            Save.Write(nameof(Vector4), Vector4);
-            Save.Write(nameof(Quaternion), Quaternion);
-            Save.Write(nameof(Matrix), Matrix);
-            Save.Write(nameof(Double), Double);
-            Save.Write(nameof(Int), Int);
-            Save.Write(nameof(UInt), UInt);
-            Save.Write(nameof(Long), Long);
-            Save.Write(nameof(ULong), ULong);
-            Save.Write(nameof(Short), Short);
-            Save.Write(nameof(UShort), UShort);
-            Save.Write(nameof(Byte), Byte);
-            Save.Write(nameof(SByte), SByte);
-            Save.Write(nameof(Bool), Bool);
+            Save.NewFile(2);
+            // Save.Write<int>(-2000000000);
+            // Save.Write<uint>(4000000000);
+            // Save.Write<short>(-32000);
+            // Save.Write<ushort>(65000);
+            // Save.Write<long>(-999999999999999999);
+            // Save.Write<ulong>(9999999999999999999);
+            // Save.Write(true);
+            // Save.Write(false);
+            // Save.Write(new Vector3Int(1, 2, 3));
+            // Save.Write(new Vector2Int(3, 4));
+            // Save.Write(new Vector2(3, 4));
+            // Save.Write(new Vector3(5, 6, 0));
+            // Save.Write(new Vector4(5, 6, 7, 8));
+            // Save.Write("Hello World!");
+            // Save.Write("Привет Мир!");
+            // Save.Write(123);
+            // // Save.WriteObject(Em);
+            // Save.Write(Quaternion.Euler(45, 34, 22));
+            // Save.Write(Quaternion.Euler(22.2f, 33.8f, 2.2f));
+
+            Save.WriteObjectArray(Objects.Length, Objects, nameof(Objects));
+            Save.WriteArray(Floats.Length, Floats, nameof(Floats));
+            Save.WriteArray(Ints.Length, Ints, nameof(Ints));
+            Save.WriteObject(Em, nameof(Em));
+            Save.Write(Vector3, nameof(Vector3));
+            Save.Write(Vector3Int, nameof(Vector3Int));
+            Save.Write(Vector2, nameof(Vector2));
+            Save.Write(Vector2Int, nameof(Vector2Int));
+            Save.Write(Vector4, nameof(Vector4));
+            Save.Write(Quaternion, nameof(Quaternion));
+            Save.Write(Matrix, nameof(Matrix));
+            Save.Write(Double, nameof(Double));
+            Save.Write(Int, nameof(Int));
+            Save.Write(UInt, nameof(UInt));
+            Save.Write(Long, nameof(Long));
+            Save.Write(ULong, nameof(ULong));
+            Save.Write(Short, nameof(Short));
+            Save.Write(UShort, nameof(UShort));
+            Save.Write(Byte, nameof(Byte));
+            Save.Write(SByte, nameof(SByte));
+            Save.Write(Bool, nameof(Bool));
             sw.Stop();
 
             Debug.Log($"Write Time: {sw.ElapsedMilliseconds}");
@@ -148,14 +168,58 @@ public class SavingTest : MonoBehaviour {
 
             Debug.Log($"File Parse Time: {sw.ElapsedMilliseconds}");
 
+            // var sf  = (BinarySaveFile)Save;
+            // var str = "";
+
+            // for(var ii = 0; ii < sf.LoadedBytes.Length; ++ii) {
+            //     str += string.Format("{0:x}, ", sf.LoadedBytes[ii]);
+            // }
+
+            // Debug.Log(str);
+
             sw.Restart();
+            // var a = Save.Read<int>();
+            // var b = Save.Read<uint>();
+            // var c = Save.Read<short>();
+            // var d = Save.Read<ushort>();
+            // var e = Save.Read<long>();
+            // var f = Save.Read<ulong>();
+            // var g = Save.Read<bool>();
+            // var h = Save.Read<bool>();
+            // var i = Save.Read<Vector3Int>();
+            // var j = Save.Read<Vector2Int>();
+            // var k = Save.Read<Vector2>();
+            // var l = Save.Read<Vector3>();
+            // var m = Save.Read<Vector4>();
+            // var n = Save.Read<string>();
+            // var o = Save.Read<string>();
+            // var p = Save.Read<int>();
+            // // Save.ReadObject(Em);
+            // var r = Save.Read<Quaternion>();
+            // var s = Save.Read<Quaternion>();
+            // Debug.Log(a);
+            // Debug.Log(b);
+            // Debug.Log(c);
+            // Debug.Log(d);
+            // Debug.Log(e);
+            // Debug.Log(f);
+            // Debug.Log(g);
+            // Debug.Log(h);
+            // Debug.Log(i);
+            // Debug.Log(j);
+            // Debug.Log(k);
+            // Debug.Log(l);
+            // Debug.Log(m);
+            // Debug.Log(n);
+            // Debug.Log(o);
+            // Debug.Log(p);
+            // Debug.Log(r.eulerAngles);
+            // Debug.Log(s.eulerAngles);
+
             Objects    = Save.ReadValueObjectArray<SavingObject>(nameof(Objects));
-            NativeInts.Dispose();
-            NativeObjects.Dispose();
-            NativeObjects = Save.ReadNativeObjectArray<SavingObject>(nameof(Objects), Allocator.Persistent);
-            NativeInts = Save.ReadNativeArray<int>(nameof(Ints), Allocator.Persistent);
             Floats     = Save.ReadArray<float>(nameof(Floats));
             Ints       = Save.ReadArray<int>(nameof(Ints));
+            Save.ReadObject(Em, nameof(Em));
             Vector3    = Save.Read<Vector3>(nameof(Vector3));
             Vector3Int = Save.Read<Vector3Int>(nameof(Vector3Int));
             Vector2    = Save.Read<Vector2>(nameof(Vector2));
@@ -175,7 +239,6 @@ public class SavingTest : MonoBehaviour {
             SByte  = Save.Read<sbyte>(nameof(SByte));
             Bool   = Save.Read<bool>(nameof(Bool));
             
-            Save.ReadObject(nameof(Em), Em);
             sw.Stop();
 
             Debug.Log($"Reconstruction Time: {sw.ElapsedMilliseconds}");

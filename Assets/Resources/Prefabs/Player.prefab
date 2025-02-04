@@ -149,12 +149,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2074b86c06464544898b900a2bb0ff6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Id: 0
   Prefab:
     Path: Prefabs/Player
     Reference: {fileID: 610069165242291788}
   Flags: 10
-  Type: 1
+  Type: 0
   Em: {fileID: 0}
   World: {fileID: 0}
   AutoBake: 0

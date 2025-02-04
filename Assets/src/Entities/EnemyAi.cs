@@ -5,7 +5,7 @@ public class EnemyAi : CharacterInput {
     
     private void Start(){
         if(Singleton<Player>.Exist) {
-            Enemy.Target = Enemy.Em.GetHandle(Singleton<Player>.Instance.Id);
+            Enemy.Target = Singleton<Player>.Instance.Handle;
         }
         Enemy = GetComponent<Enemy>();
     }
@@ -22,7 +22,7 @@ public class EnemyAi : CharacterInput {
                 
                 if(direction.magnitude < Enemy.AttackRadius) {
                     if(Enemy.Attack()) {
-                        Enemy.Em.DestroyEntity(Enemy.Id);
+                        Enemy.Em.DestroyEntity(Enemy.Handle);
                     }
                 }
             }

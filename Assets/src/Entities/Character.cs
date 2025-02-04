@@ -6,8 +6,8 @@ public struct Damage : ISave {
     public EntityHandle sender;
 
     public void Save(ISaveFile sf) {
-        sf.Write(nameof(amount), amount);
-        sf.WriteObject(nameof(sender), sender);
+        sf.Write(amount, nameof(amount));
+        sf.WriteObject(sender, nameof(sender));
     }
 
     public void Load(ISaveFile sf) {
@@ -37,8 +37,8 @@ public class Character : Entity {
 
     public override void Save(ISaveFile sf) {
         base.Save(sf);
-        sf.Write(nameof(Speed), Speed);
-        sf.Write(nameof(Health), Health);
+        sf.Write(Speed, nameof(Speed));
+        sf.Write(Health, nameof(Health));
     }
 
     public override void Load(ISaveFile sf) {
@@ -56,7 +56,7 @@ public class Character : Entity {
     public virtual void Walk(Vector3 move) {
         CharacterController.SimpleMove(move);
         Em.MovedEntities.Add(new MovedEntity{
-            Id = Id, 
+            Id = Handle.Id, 
             NewPosition = transform.position
         });
     }
@@ -68,7 +68,7 @@ public class Character : Entity {
     public virtual void ApplyDamage(Damage damage) {
         Health -= damage.amount;
         if(Health <= 0) {
-            Em.DestroyEntity(Id);
+            Em.DestroyEntity(Handle);
         }
     }
 }

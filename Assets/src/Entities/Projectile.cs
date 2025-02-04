@@ -21,13 +21,13 @@ public class Projectile : Entity {
     public override void Save(ISaveFile sf)
     {
         base.Save(sf);
-        sf.Write(nameof(Speed), Speed);
-        sf.Write(nameof(Size), Size);
-        sf.Write(nameof(TimeToLive), TimeToLive);
-        sf.WriteObject(nameof(Damage), Damage);
-        sf.Write(nameof(Mask), Mask.value);
-        sf.Write(nameof(_direction), _direction);
-        sf.WriteObject(nameof(_sender), _sender);
+        sf.Write(Speed, nameof(Speed));
+        sf.Write(Size, nameof(Size));
+        sf.Write(TimeToLive, nameof(TimeToLive));
+        sf.WriteObject(Damage, nameof(Damage));
+        sf.Write(Mask.value, nameof(Mask));
+        sf.Write(_direction, nameof(_direction));
+        sf.WriteObject(_sender, nameof(_sender));
     }
 
     public override void Load(ISaveFile sf)
@@ -47,8 +47,8 @@ public class Projectile : Entity {
         TimeToLive -= Time.deltaTime;
         
         if(TimeToLive <= 0) {
-            if(Em.IsAlive(Id)) {
-                Em.DestroyEntity(Id);
+            if(Em.IsValid(Handle)) {
+                Em.DestroyEntity(Handle);
             }
             return;
         }
@@ -61,9 +61,9 @@ public class Projectile : Entity {
             var coll = CollisionBuffer[i];
             
             if(coll.TryGetComponent(out Character character)) {
-                if(character.Id != _sender.Id) {
+                if(character.Handle.Id != _sender.Id) {
                     character.ApplyDamage(Damage);
-                    Em.DestroyEntity(Id);
+                    Em.DestroyEntity(Handle);
                     return;
                 }
             }

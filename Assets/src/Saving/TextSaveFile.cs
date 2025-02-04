@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 using Unity.Collections;
 using System;
 
 using static Assertions;
 
-public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
+public class TextSaveFile : SaveFileBase {
     public struct Field {
         public string Name;
         public string Value;
@@ -37,214 +38,118 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         }
     }
 
-    public enum NodeItem {
-        None,
-        Field,
-        Object,
-        ObjectStart
-    }
-
-    public Arena Arena = new(50000);
-
-    public float      Version;
-    public char      *CharBuffer;
-    public uint       BufferLength;
-    public uint       BufferCount;
-
-    public string     LoadedChars;
-    public int        LoadedLength;
-    public ObjectNode Root;
+    public string[]      LoadedLines;
+    public int           LinesCount;
+    public StringBuilder Sb = new();
+    public int           CurrentOffset;
+    public ObjectNode    Root;
     public Stack<ObjectNode> ObjectStack = new();
 
-    public char   *CurrentBuffer;
-    public uint    CurrentBufferLength;
-    public uint    CurrentBufferCount;
-
-    public NodeItem  PreviouslyAdded;
-    public const string Extension = ".sav";
-    public const char NameValueSeparator = ':';
-    public const char FieldSeparator = ';';
-
-    public void Dispose() {
-        CharBuffer = null;
-        CurrentBuffer = null;
-        Arena.Dispose();
-    }
-
-    private void Resize(char **array, uint oldlen, uint newlength) {
-        var arr = *array;
-        var newarr = Arena.Alloc<char>(newlength);
-
-        for(var i = 0; i < oldlen; ++i) {
-            newarr[i] = arr[i];
-        }
-
-        *array = newarr;
-    }
-
-    private void PushChar(char c) {
-        CharBuffer[BufferCount++] = c;
-
-        if(BufferLength == BufferCount) {
-            fixed (char **buffer = &CharBuffer) {
-                var newlen = BufferLength << 1;
-                Resize(buffer, BufferLength, newlen);
-                BufferLength = newlen;
-            }
-        }
-    }
-
-    private void PushChars(char[] c) {
-        uint len = BufferCount + (uint)c.Length;
-        if(len >= BufferLength) {
-            var newlen = len << 1;
-            fixed (char **buffer = &CharBuffer) {
-                Resize(buffer, BufferLength, newlen);
-                BufferLength = newlen;
-            }
-        }
-
-        for(var i = 0; i < c.Length; ++i) {
-            CharBuffer[BufferCount + i] = c[i];
-        }
-
-        BufferCount += (uint)c.Length;
-    }
-
-    private void PushString(string s) {
-        var len = BufferCount + s.Length;
-        if(len >= BufferLength) {
-            uint newlen = (uint)len << 1;
-            fixed (char **buffer = &CharBuffer) {
-                Resize(buffer, BufferLength, newlen);
-                BufferLength = newlen;
-            }
-        }
-
-        for(var i = 0; i < s.Length; ++i) {
-            CharBuffer[BufferCount + i] = s[i];
-        }
-
-        BufferCount += (uint)s.Length;
-    }
-
-    private void PushCurrent(char c) {
-        CurrentBuffer[CurrentBufferCount++] = c;
-
-        if(CurrentBufferLength == CurrentBufferCount) {
-            var newlen = CurrentBufferLength << 1;
-            fixed (char **buffer = &CurrentBuffer) {
-                Resize(buffer, CurrentBufferLength, newlen);
-                CurrentBufferLength = newlen;
-            }
-        }
-    }
-
-    public const uint InitialBufferLength = 5000;
-    public const uint InitialCurrentBufferLength = 500;
+    public const int Offset = 4;
+    public const string Separator = " : ";
     
-    public void NewFile(float version) {
-        Version = version;
-        Arena.FreeAll();
-        CharBuffer = Arena.Alloc<char>(InitialBufferLength);
-        BufferLength = InitialBufferLength;
-        CurrentBuffer = Arena.Alloc<char>(InitialCurrentBufferLength);
-        CurrentBufferLength = InitialCurrentBufferLength;
-        CurrentBufferCount = 0;
-        BufferCount = 0;
-        Write(nameof(Version), version);
-    }
-    
-    public void SaveToFile(string path, string name) {
-        path += $"/{name}{Extension}";
-        if(File.Exists(path)) {
-            File.Delete(path);
-            File.CreateText(path).Close();
-        }
-        
-        File.WriteAllText(path, new string(CharBuffer, 0, (int)BufferCount));
+    public override void NewFile(uint version) {
+        Sb.Clear();
+        base.NewFile(version);
+        Sb.AppendLine();
     }
 
-    public void NewFromExistingFile(string path) {
-        Assert(path.EndsWith(Extension), $"File should ends with {Extension}");
+    protected override void LoadFile(string path) {
+        Root = new ObjectNode {
+            Fields = new(),
+            NestedObjects = new()
+        };
 
-        Arena.FreeAll();
-        CharBuffer = Arena.Alloc<char>(InitialBufferLength);
-        BufferLength = InitialBufferLength;
-        CurrentBuffer = Arena.Alloc<char>(InitialCurrentBufferLength);
-        CurrentBufferLength = InitialCurrentBufferLength;
-        CurrentBufferCount = 0;
-        BufferCount = 0;
+        LoadedLines = File.ReadAllLines(path);
+        LinesCount = LoadedLines.Length;
 
-        if(File.Exists(path)) {
-            LoadedChars = File.ReadAllText(path);
-            LoadedLength = LoadedChars.Length;
-            CurrentBufferCount = 0;
-        } else {
-            Debug.LogError($"File at: {path} does not exist");
+        // var versionLine = LoadedLines[0].TrimStart().TrimEnd();
+        // var nameObj = versionLine.Split(Separator);
+        // if(nameObj.Length == 2) {
+        //     Assert(nameObj[0] == nameof(Version), "Can't read version, make sure the file is formated right");
+        //     if(float.TryParse(nameObj[1], out var version)) {
+        //         Version = version;
+        //     } else {
+        //         Debug.LogError("Can't parse version");
+        //     }
+        // } else {
+        //     Debug.LogError("Can't parse version");
+        // }
+
+        var startLine = 1;
+
+        while(startLine < LinesCount) {
+            var line = LoadedLines[startLine].TrimStart().TrimEnd();
+            var separateLine = line.Split(Separator);
+            if(separateLine.Length > 1 && separateLine[1] == "{") {
+                startLine++;
+                SaveObject(separateLine[0], ParseObject(ref startLine, ObjectNode.Create()));
+            } else if(separateLine.Length == 2) {
+                Root.Fields.Add(new Field(separateLine[0], separateLine[1]));
+                startLine++;
+            } else {
+                startLine++;
+            }
         }
-
-        //Parse file
-        var startIndex = 0;
-
-        Root = ParseObject(ref startIndex, ObjectNode.Create());
     }
 
+    protected override void SaveFile(string path) {
+        File.CreateText(path).Close();
+        File.WriteAllText(path, Sb.ToString());
+    }
 
-    public void Write<T>(string name, T value) {
-        if(PreviouslyAdded == NodeItem.Field) {
-            PushChar(FieldSeparator);
-        }
-        PushString(name);
+    public override void Write<T>(T value, string name = null) {
+        Sb.Append(name);
         AddNameSeparator();
-        PushString(Parse(value));
-        PreviouslyAdded = NodeItem.Field;
+        Sb.Append(Parse(value));
+        NextLine();
     }
 
-    public void WriteObject(string name, ISave save) {
+    public override void WriteObject(ISave save, string name = null) {
         BeginObject(name);
         save.Save(this);
         EndObject();
     }
 
-    public void WriteArray<T>(string name, int itemsCount, T[] arr) {
+    public override void WriteArray<T>(int itemsCount, T[] arr, string name = null) {
         BeginObject(name);
-        Write("Count", itemsCount);
+        Write(itemsCount, "Count");
 
         for(var i = 0; i < itemsCount; ++i) {
-            Write($"{name}ArrayElement{i}", arr[i]);
+            Write(arr[i], $"{name}ArrayElement{i}");
+            NextLine();
         }
         EndObject();
     }
 
-    public void WriteObjectArray<T>(string name, int itemsCount, T[] arr) 
-    where T : ISave {
+    public override void WriteObjectArray<T>(int itemsCount, T[] arr, string name = null) {
         BeginObject(name);
-        Write("Count", itemsCount);
+        Write(itemsCount, "Count");
 
         for(var i = 0; i < itemsCount; ++i) {
-            WriteObject($"{name}ArrayElement{i}", arr[i]);
+            WriteObject(arr[i], $"{name}ArrayElement{i}");
+            NextLine();
         }
         EndObject();
     }
 
-    public void WriteNativeArray<T>(string name, int itemsCount, NativeArray<T> arr) 
-    where T : unmanaged {
+    public override void WriteNativeArray<T>(int itemsCount, NativeArray<T> arr, string name = null) {
         BeginObject(name);
-        Write("Count", itemsCount);
+        Write(itemsCount, "Count");
 
         for(var i = 0; i < itemsCount; ++i) {
-            Write($"{name}ArrayElement{i}", arr[i]);
+            Write(arr[i], $"{name}ArrayElement{i}");
+            NextLine();
         }
         EndObject();
     }
 
-    public void WritePackedEntity(string name, PackedEntity e, uint id) {
+    public override void WritePackedEntity(PackedEntity e, uint id, string name = null) {
         BeginObject(name);
-        Write("Id", id);
-        Write(nameof(e.Tag), e.Tag);
-        WriteEnum(nameof(e.Type), e.Type);
-        Write(nameof(e.Alive), e.Alive);
+        Write(id, "Id");
+        Write(e.Tag, nameof(e.Tag));
+        WriteEnum(e.Type, nameof(e.Type));
+        Write(e.Alive, nameof(e.Alive));
         if(e.Alive) {
             WriteEntity(nameof(e.Entity), e.Entity);
         }
@@ -253,51 +158,51 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
 
     private void WriteEntity(string name, Entity e) {
         BeginObject(name);
-        Write(nameof(e.Id), e.Id);
-        WriteEnum(nameof(e.Type), e.Type);
-        WriteEnum(nameof(e.Flags), e.Flags);
-        WriteObject(nameof(e.Prefab), e.Prefab);
-        Write("Position", e.transform.position);
-        Write("Orientation", e.transform.rotation);
-        Write("Scale", e.transform.localScale);
+        WriteObject(e.Handle, nameof(e.Handle));
+        WriteEnum(e.Type, nameof(e.Type));
+        WriteEnum(e.Flags, nameof(e.Flags));
+        WriteObject(e.Prefab, nameof(e.Prefab));
+        Write(e.transform.position, "Position");
+        Write(e.transform.rotation, "Orientation");
+        Write(e.transform.localScale, "Scale");
         e.Save(this);
         EndObject();
     }
 
-    public void WriteEnum(string name, Enum e) {
+    public override void WriteEnum(Enum e, string name = null) {
         var type = Enum.GetUnderlyingType(e.GetType()).ToString();
 
         switch(type) {
             case "System.Int32" : {
-                Write(name, (int)Convert.ChangeType(e, typeof(int)));
+                Write((int)Convert.ChangeType(e, typeof(int)), name);
             }
             break;
             case "System.UInt32" : {
-                Write(name, (uint)Convert.ChangeType(e, typeof(uint)));
+                Write((uint)Convert.ChangeType(e, typeof(uint)), name);
             }
             break;
             case "System.Int64" : {
-                Write(name, (long)Convert.ChangeType(e, typeof(long)));
+                Write((long)Convert.ChangeType(e, typeof(long)), name);
             }
             break;
             case "System.UInt64" : {
-                Write(name, (ulong)Convert.ChangeType(e, typeof(ulong)));
+                Write((ulong)Convert.ChangeType(e, typeof(ulong)), name);
             }
             break;
             case "System.Int16" : {
-                Write(name, (short)Convert.ChangeType(e, typeof(short)));
+                Write((short)Convert.ChangeType(e, typeof(short)), name);
             }
             break;
             case "System.UInt16" : {
-                Write(name, (ushort)Convert.ChangeType(e, typeof(ushort)));
+                Write((ushort)Convert.ChangeType(e, typeof(ushort)), name);
             }
             break;
             case "System.Byte" : {
-                Write(name, (byte)Convert.ChangeType(e, typeof(byte)));
+                Write((byte)Convert.ChangeType(e, typeof(byte)), name);
             }
             break;
             case "System.SByte" : {
-                Write(name, (sbyte)Convert.ChangeType(e, typeof(sbyte)));
+                Write((sbyte)Convert.ChangeType(e, typeof(sbyte)), name);
             }
             break;
             default : {
@@ -307,7 +212,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         }
     }
 
-    public T Read<T>(string name, T defaultValue = default(T)) {
+    public override T Read<T>(string name = null, T defaultValue = default(T)) {
         foreach(var field in GetCurrentNode().Fields) {
             if(field.Name == name) {
                 return Parse<T>(field.Value);
@@ -317,7 +222,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return defaultValue;
     }
 
-    public T[] ReadArray<T>(string name) {
+    public override T[] ReadArray<T>(string name = null) {
         BeginReadObject(name);
         var count = Read<int>("Count");
         var arr   = new T[count];
@@ -331,14 +236,13 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return arr;
     }
 
-    public void ReadObject(string name, ISave obj) {
+    public override void ReadObject(ISave obj, string name = null) {
         BeginReadObject(name);
         obj.Load(this);
         EndReadObject();
     }
 
-    public T ReadValueType<T>(string name) 
-    where T : ISave {
+    public override T ReadValueType<T>(string name = null) {
         var ret = default(T);
 
         BeginReadObject(name);
@@ -348,11 +252,26 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return ret;
     }
 
-    public T ReadEnum<T>(string name) // @Incomplete add all basic enum types
-    where T : Enum {
+    public override T ReadEnum<T>(string name) {
         var type = Enum.GetUnderlyingType(typeof(T)).ToString();
         
         switch(type) {
+            case "System.Byte" : {
+                var val = Read<byte>(name);
+                return (T)Enum.ToObject(typeof(T), val);
+            }
+            case "System.SByte" : {
+                var val = Read<sbyte>(name);
+                return (T)Enum.ToObject(typeof(T), val);
+            }
+            case "System.Int16" : {
+                var val = Read<short>(name);
+                return (T)Enum.ToObject(typeof(T), val);
+            }
+            case "System.UInt16" : {
+                var val = Read<ushort>(name);
+                return (T)Enum.ToObject(typeof(T), val);
+            }
             case "System.Int32" : {
                 var val = Read<int>(name);
                 return (T)Enum.ToObject(typeof(T), val);
@@ -369,22 +288,6 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
                 var val = Read<ulong>(name);
                 return (T)Enum.ToObject(typeof(T), val);
             }
-            case "System.Int16" : {
-                var val = Read<short>(name);
-                return (T)Enum.ToObject(typeof(T), val);
-            }
-            case "System.UInt16" : {
-                var val = Read<ushort>(name);
-                return (T)Enum.ToObject(typeof(T), val);
-            }
-            case "System.Byte" : {
-                var val = Read<byte>(name);
-                return (T)Enum.ToObject(typeof(T), val);
-            }
-            case "System.SByte" : {
-                var val = Read<sbyte>(name);
-                return (T)Enum.ToObject(typeof(T), val);
-            }
             default : {
                 Debug.LogError($"Can't read enum with underlying type: {type}");
             }
@@ -394,7 +297,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return default;
     }
 
-    public PackedEntity ReadPackedEntity(string name, EntityManager em) {
+    public override PackedEntity ReadPackedEntity(EntityManager em, string name = null) {
         BeginReadObject(name);
         var ent = new PackedEntity();
         var id  = Read<uint>("Id");
@@ -414,7 +317,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
     private Entity ReadEntity(string name, EntityManager em, uint tag) {
         BeginReadObject(name);
         Entity entity = null;
-        var id     = Read<uint>(nameof(entity.Id));
+        var handle = ReadValueType<EntityHandle>(nameof(entity.Handle));
         var type   = ReadEnum<EntityType>(nameof(entity.Type));
         var flags  = ReadEnum<EntityFlags>(nameof(entity.Flags));
         var link   = ReadValueType<ResourceLink>(nameof(entity.Prefab));
@@ -423,21 +326,20 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         var scale = Read<Vector3>("Scale");
         entity = em.RecreateEntity(link, tag, position, orientation, scale, type, flags);
         entity.Load(this);
-        Assert(id == entity.Id, $"Entity Id's are not identical while reading entity. Recreated Id: {entity.Id}, Saved Id: {id}");
+        Assert(handle.Id == entity.Handle.Id, $"Entity Id's are not identical while reading entity. Recreated Id: {entity.Handle.Id}, Saved Id: {handle.Id}");
         EndReadObject();
 
         return entity;
     }
 
-    public T[] ReadObjectArray<T>(string name, Func<T> createObjectFunc) 
-    where T : ISave {
+    public override T[] ReadObjectArray<T>(Func<T> createObjectFunc, string name = null) {
         BeginReadObject(name);
         var count = Read<int>("Count");
         var arr   = new T[count];
 
         for(var i = 0; i < count; ++i) {
             var obj = createObjectFunc();
-            ReadObject($"{name}ArrayElement{i}", obj);
+            ReadObject(obj, $"{name}ArrayElement{i}");
             arr[i] = obj;
         }
 
@@ -446,8 +348,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return arr;
     }
 
-    public T[] ReadUnmanagedObjectArray<T>(string name) 
-    where T : unmanaged, ISave {
+    public override T[] ReadUnmanagedObjectArray<T>(string name = null) {
         BeginReadObject(name);
         var count = Read<int>("Count");
         var arr   = new T[count];
@@ -461,8 +362,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return arr;
     }
 
-    public T[] ReadValueObjectArray<T>(string name)
-    where T : struct, ISave {
+    public override T[] ReadValueObjectArray<T>(string name = null) {
         BeginReadObject(name);
         var count = Read<int>("Count");
         var arr = new T[count];
@@ -476,8 +376,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return arr;
     }
 
-    public NativeArray<T> ReadNativeObjectArray<T>(string name, Allocator allocator)
-    where T : unmanaged, ISave {
+    public override NativeArray<T> ReadNativeObjectArray<T>(Allocator allocator, string name = null) {
         BeginReadObject(name);
         var count = Read<int>("Count");
         var arr = new NativeArray<T>(count, allocator);
@@ -491,8 +390,7 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
         return arr;
     }
 
-    public NativeArray<T> ReadNativeArray<T>(string name, Allocator allocator) 
-    where T : unmanaged {
+    public override NativeArray<T> ReadNativeArray<T>(Allocator allocator, string name = null) {
         BeginReadObject(name);
         var count = Read<int>("Count");
         var arr   = new NativeArray<T>(count, allocator);
@@ -540,67 +438,53 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
     }
 
     private void BeginObject(string name) {
-        if(PreviouslyAdded == NodeItem.Field) {
-            PushChar(FieldSeparator);
-        }
-        PushString(name);
+        Sb.Append(name);
         AddNameSeparator();
-        PushChar('{');
-        PreviouslyAdded = NodeItem.ObjectStart;
+        Sb.Append('{');
+        CurrentOffset += Offset;
+        NextLine();
+    }
+
+    private void NextLine() {
+        Sb.AppendLine();
+        Sb.Append(' ', CurrentOffset);
     }
 
     private void EndObject() {
-        PushChar('}');
-        PreviouslyAdded = NodeItem.Object;
+        Sb.AppendLine();
+        CurrentOffset -= Offset;
+        Sb.Append(' ', CurrentOffset);
+        Sb.Append('}');
+        NextLine();
     }
 
     private void AddNameSeparator() {
-        PushChar(NameValueSeparator);
+        Sb.Append(Separator);
     }
 
-    private ObjectNode ParseObject(ref int index, ObjectNode node = default) {
-        while(index < LoadedLength) {
-            var c = LoadedChars[index];
-            if(LoadedChars[index] == '}') {
-                index++;
+    private ObjectNode ParseObject(ref int startLine, ObjectNode node = default) {
+        while(true) {
+            var line = LoadedLines[startLine].TrimStart().TrimEnd();
 
-                if(CurrentBufferCount > 0 && CurrentBuffer[CurrentBufferCount - 1] != '}') {
-                    for(var i = 0; i < CurrentBufferCount; ++i) {
-                        if(CurrentBuffer[i] == NameValueSeparator) {
-                            var name = new string(CurrentBuffer, 0, i);
-                            var value = new string(CurrentBuffer, i + 1, (int)CurrentBufferCount - i 
-                                - 1);
-                            node.PushField(new Field(name, value));
-                            CurrentBufferCount = 0;
-                            break;
-                        }
-                    }
-                }
+            if(string.IsNullOrEmpty(line)) {
+                startLine++;
+                continue;
+            }
+
+            if(line[0] == '}') {
+                startLine++;
                 break;
             }
 
-            if(LoadedChars[index] == '{') {
-                index++;
-                var name = new string(CurrentBuffer, 0, (int)CurrentBufferCount - 1);
-                CurrentBufferCount = 0;
-                node.PushObject(name, ParseObject(ref index, ObjectNode.Create()));
-            } else if(LoadedChars[index] == FieldSeparator) {
-                index++;
-                
-                for(var i = 0; i < CurrentBufferCount; ++i) {
-                    if(CurrentBuffer[i] == NameValueSeparator) {
-                        var name = new string(CurrentBuffer, 0, i);
-                        var value = new string(CurrentBuffer, i + 1, (int)CurrentBufferCount - i 
-                            - 1);
-                        node.PushField(new Field(name, value));
-                        CurrentBufferCount = 0;
-                        break;
-                    }
-                }
-            } else {
-                PushCurrent(LoadedChars[index++]);
-            }
+            var separateLine = line.Split(Separator);
 
+            if(separateLine[1] == "{") {
+                startLine++;
+                node.PushObject(separateLine[0], ParseObject(ref startLine, ObjectNode.Create()));
+            } else {
+                node.PushField(new Field(separateLine[0], separateLine[1]));
+                startLine++;
+            }
         }
 
         return node;
@@ -655,6 +539,34 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
             case "System.String" : {
                 return (T)(object)value;
             }
+            case "System.Byte" : {
+                if(byte.TryParse(value, out var v)) {
+                    return (T)(object)v;
+                } else {
+                    return defaultValue;
+                }
+            }
+            case "System.SByte" : {
+                if(sbyte.TryParse(value, out var v)) {
+                    return (T)(object)v;
+                } else {
+                    return defaultValue;
+                }
+            }
+            case "System.Int16" : {
+                if(short.TryParse(value, out var v)) {
+                    return (T)(object)v;
+                } else {
+                    return defaultValue;
+                }
+            }
+            case "System.UInt16" : {
+                if(ushort.TryParse(value, out var v)) {
+                    return (T)(object)v;
+                } else {
+                    return defaultValue;
+                }
+            }
             case "System.Int32" : {
                 if(int.TryParse(value, out var v)) {
                     return (T)(object)v;
@@ -678,34 +590,6 @@ public unsafe class ObfuscatedSaveFile : ISaveFile, IDisposable {
             }
             case "System.UInt64" : {
                 if(ulong.TryParse(value, out var v)) {
-                    return (T)(object)v;
-                } else {
-                    return defaultValue;
-                }
-            }
-            case "System.Int16" : {
-                if(short.TryParse(value, out var v)) {
-                    return (T)(object)v;
-                } else {
-                    return defaultValue;
-                }
-            }
-            case "System.UInt16" : {
-                if(ushort.TryParse(value, out var v)) {
-                    return (T)(object)v;
-                } else {
-                    return defaultValue;
-                }
-            }
-            case "System.Byte" : {
-                if(byte.TryParse(value, out var v)) {
-                    return (T)(object)v;
-                } else {
-                    return defaultValue;
-                }
-            }
-            case "System.SByte" : {
-                if(sbyte.TryParse(value, out var v)) {
                     return (T)(object)v;
                 } else {
                     return defaultValue;

@@ -14,7 +14,7 @@ public struct ResourceLink : ISave {
     public GameObject Reference; // Used as reference to resource in Resources folder, do not use it.
 
     public void Save(ISaveFile sf) {
-        sf.Write(nameof(Path), Path);
+        sf.Write(Path, nameof(Path));
     }
 
     public void Load(ISaveFile sf) {

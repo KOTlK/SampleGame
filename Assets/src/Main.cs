@@ -30,7 +30,7 @@ public class Main : MonoBehaviour {
         TaskRunner = new TaskRunner();
         Events     = new Events();
         ResourceSystem = new ResourceSystem();
-        SaveSystem     = new SaveSystem();
+        SaveSystem     = new SaveSystem(SaveSystem.SaveType.Text);
         
         Singleton<EntityManager>.Create(EntityManager);
         Singleton<TaskRunner>.Create(TaskRunner);
@@ -78,7 +78,7 @@ public class Main : MonoBehaviour {
                 if(Input.GetKeyDown(KeyCode.F5)) {
                     var sf = SaveSystem.BeginSave();
                     //Save game
-                    sf.WriteObject(nameof(EntityManager), EntityManager);
+                    sf.WriteObject(EntityManager, nameof(EntityManager));
 
                     SaveSystem.EndSave(Application.persistentDataPath, "GameSave");
                     break;
@@ -88,7 +88,7 @@ public class Main : MonoBehaviour {
                     var sf = SaveSystem.BeginLoading($"{Application.persistentDataPath}/GameSave.sav");
                     //load game
 
-                    sf.ReadObject(nameof(EntityManager), EntityManager);
+                    sf.ReadObject(EntityManager, nameof(EntityManager));
 
                     SaveSystem.EndLoading();
                     break;
