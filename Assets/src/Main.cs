@@ -31,7 +31,6 @@ public class Main : MonoBehaviour {
         Events     = new Events();
         ResourceSystem = new ResourceSystem();
         SaveSystem     = new SaveSystem(SaveSystem.SaveType.Binary);
-        TypeVersion.Init();
         
         Singleton<EntityManager>.Create(EntityManager);
         Singleton<TaskRunner>.Create(TaskRunner);
