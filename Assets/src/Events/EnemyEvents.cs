@@ -1,7 +1,7 @@
 using TMPro;
 using System;
 
-public struct EnemyDiedEvent{
+public struct EnemyDiedEvent : IEvent {
     public uint killer;
 }
 
@@ -11,24 +11,23 @@ public class EnemyDiedEventHandler : IDisposable {
     public int      EnemiesKilledByPlayer;
     public int      KilledEnemies;
     
-    public EnemyDiedEventHandler(){
-        Singleton<Events>.Instance.AddHandler<EnemyDiedEvent>(HandleEvents);
+    public EnemyDiedEventHandler() {
+        Events.SubscribeToPrivate<Enemy, EnemyDiedEvent>(HandleEvents);
     }
     
-    public void Dispose(){
-        Singleton<Events>.Instance.RemoveHandler<EnemyDiedEvent>(HandleEvents);
+    public void Dispose() {
+        Events.UnsubscribeFromPrivate<Enemy, EnemyDiedEvent>(HandleEvents);
     }
     
-    public void HandleEvents(EventData events) {
+    public void HandleEvents(IEvent evnt) {
         var player = Singleton<Player>.Instance;
-        for(var i = 0; i < events.Count; ++i){
-            ref var evnt = ref events.GetByRef<EnemyDiedEvent>(i);
-            
-            KilledEnemies++;
-            
-            if(evnt.killer == player.Handle.Id){
-                EnemiesKilledByPlayer++;
-            }
+
+        var data = (EnemyDiedEvent)evnt;
+        
+        KilledEnemies++;
+        
+        if(data.killer == player.Handle.Id){
+            EnemiesKilledByPlayer++;
         }
         
         KilledEnemiesText.text         = KilledEnemies.ToString();

@@ -47,7 +47,7 @@ public class Enemy : Character {
         
         Health -= damage.amount;
         if(Health <= 0){
-            Singleton<Events>.Instance.RaiseEvent<EnemyDiedEvent>(new EnemyDiedEvent{killer = damage.sender.Id});
+            Events.RaisePrivateEvent<Enemy, EnemyDiedEvent>(new EnemyDiedEvent{killer = damage.sender.Id});
             Em.DestroyEntity(Handle);
         }
     }

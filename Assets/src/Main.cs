@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -20,7 +21,6 @@ public class Main : MonoBehaviour {
     public EntityManager  EntityManager;
     public TaskRunner     TaskRunner;
     public EnemySpawner   SpawnerTask;
-    public Events         Events;
     public ResourceSystem ResourceSystem;
     public SaveSystem SaveSystem;
     
@@ -28,13 +28,12 @@ public class Main : MonoBehaviour {
     
     private void Awake() {
         TaskRunner = new TaskRunner();
-        Events     = new Events();
+        Events.Init();
         ResourceSystem = new ResourceSystem();
         SaveSystem     = new SaveSystem(SaveSystem.SaveType.Binary);
         
         Singleton<EntityManager>.Create(EntityManager);
         Singleton<TaskRunner>.Create(TaskRunner);
-        Singleton<Events>.Create(Events);
         Singleton<ResourceSystem>.Create(ResourceSystem);
         Singleton<SaveSystem>.Create(SaveSystem);
         Singleton<Player>.Create(Player);
@@ -51,7 +50,6 @@ public class Main : MonoBehaviour {
     }
     
     private void OnDestroy() {
-        Events.Dispose();
         SaveSystem.Dispose();
     }
     
@@ -94,7 +92,7 @@ public class Main : MonoBehaviour {
                     break;
                 }
 
-                Events.HandleEvents<EnemyDiedEvent>();
+                Events.ExecuteAll();
                 EntityManager.Execute();
                 TaskRunner.RunTaskGroup(TaskGroupType.Gameplay);
             }
